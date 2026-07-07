@@ -1,0 +1,8 @@
+{
+  "appId": "at.algether.segellogbuch",
+  "appName": "Segellogbuch",
+  "webDir": "www",
+  "android": {
+    "useLegacyBridge": true
+  }
+}

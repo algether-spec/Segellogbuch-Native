@@ -1,0 +1,25 @@
+# Node
+node_modules/
+
+# Android build outputs
+android/build/
+android/app/build/
+android/.gradle/
+android/.kotlin/
+
+# iOS build outputs (falls später hinzugefügt)
+ios/build/
+ios/DerivedData/
+
+# Log-Dateien
+*.log
+build.log
+
+# macOS
+.DS_Store
+
+# Claude-spezifisch (lokale Settings, kein Inhalt für Repo)
+.claude/
+
+# Android local config (geräteabhängig)
+android/local.properties

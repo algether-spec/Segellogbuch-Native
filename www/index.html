@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Segellogbuch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f4c81">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./leaflet.css">
+</head>
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="header-content">
+            <button type="button" id="btn-hamburger" class="btn-hamburger" onclick="hamburgerKlick()">☰</button>
+            <button type="button" id="btn-sonnenmodus" class="btn-sonnenmodus" onclick="sonnenmodusToggle()">☀️</button>
+            <div class="header-titel">
+                <h1>⛵ Segellogbuch</h1>
+                <p id="header-subtitle">Törns erfassen und verwalten</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-top">
+            <span class="sidebar-titel">⛵ Menü</span>
+            <button type="button" class="btn-sidebar-close" onclick="sidebarSchliessen()">✕</button>
+        </div>
+        <nav class="sidebar-nav">
+            <button type="button" class="sidebar-acc-header" onclick="sidebarAccToggle('acc-toern')">
+                <span>📋 Törn</span><span id="acc-toern-icon">▼</span>
+            </button>
+            <div id="acc-toern" class="sidebar-acc-body">
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-toern')">📋 Törn</button>
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-toernuebersicht')">🗂 Alle Törns</button>
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-crew')">👥 Crew</button>
+            </div>
+
+            <div class="sidebar-acc-divider"></div>
+
+            <button type="button" class="sidebar-acc-header" onclick="sidebarAccToggle('acc-bord')">
+                <span>⚓ Bord</span><span id="acc-bord-icon">▶</span>
+            </button>
+            <div id="acc-bord" class="sidebar-acc-body" style="display:none">
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-sicherheit')">🛟 Sicherheit</button>
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-kontrolle')">✅ Tageskontrolle</button>
+                <button type="button" class="sidebar-acc-btn" onclick="schiffsfuehrerWechselnDialog(); sidebarSchliessen()">🧑‍✈️ Schiffsführer wechseln</button>
+            </div>
+
+            <div class="sidebar-acc-divider"></div>
+
+            <button type="button" class="sidebar-acc-header" onclick="sidebarAccToggle('acc-daten')">
+                <span>📊 Daten</span><span id="acc-daten-icon">▶</span>
+            </button>
+            <div id="acc-daten" class="sidebar-acc-body" style="display:none">
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-statistik')">📊 Statistik</button>
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-trackliste')">📍 Trackliste</button>
+                <button type="button" class="sidebar-acc-btn" onclick="trackCsvExportieren(); sidebarSchliessen()">📥 Track als CSV</button>
+                <button type="button" class="sidebar-acc-btn" onclick="datenExportierenDialog(); sidebarSchliessen()">📤 Daten exportieren</button>
+                <button type="button" class="sidebar-acc-btn" onclick="datenImportieren(); sidebarSchliessen()">📥 Daten importieren</button>
+            </div>
+
+            <div class="sidebar-acc-divider"></div>
+
+            <button type="button" class="sidebar-acc-header" onclick="sidebarAccToggle('acc-system')">
+                <span>⚙️ System</span><span id="acc-system-icon">▶</span>
+            </button>
+            <div id="acc-system" class="sidebar-acc-body" style="display:none">
+                <button type="button" class="sidebar-acc-btn" onclick="testdatenLaden()">🧪 Testdaten laden</button>
+                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-einstellungen')">⚙️ Einstellungen</button>
+                <button type="button" class="sidebar-acc-btn" onclick="updateErzwingen(); sidebarSchliessen()">🔄 Update erzwingen</button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Status -->
+    <div id="status-msg" class="status-msg" hidden></div>
+
+    <!-- ═══ Tab 1: Törn ═══════════════════════════════════════════ -->
+    <div id="tab-toern" class="tab-panel">
+
+        <div class="toern-bar">
+            <select id="toern-select" aria-label="Törn auswählen">
+                <option value="">— Törn auswählen —</option>
+            </select>
+            <button type="button" id="btn-neuer-toern" class="btn-primary">+ Neuer Törn</button>
+        </div>
+
+        <div id="form-section" hidden>
+
+            <div class="delete-row">
+                <button type="button" id="btn-toern-loeschen" class="btn-danger">Törn löschen</button>
+            </div>
+
+            <div class="card">
+                <h2>📋 Törn-Stammdaten</h2>
+                <div class="field-group">
+                    <div class="field">
+                        <label for="fld-tripname">Törnname *</label>
+                        <input type="text" id="fld-tripname" placeholder="z. B. Ostsee-Runde 2025">
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="fld-start-date">Startdatum</label>
+                            <input type="date" id="fld-start-date">
+                        </div>
+                        <div class="field">
+                            <label for="fld-start-time">Startzeit</label>
+                            <input type="time" id="fld-start-time">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="fld-end-date">Enddatum</label>
+                            <input type="date" id="fld-end-date">
+                        </div>
+                        <div class="field">
+                            <label for="fld-end-time">Endzeit</label>
+                            <input type="time" id="fld-end-time">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="fld-skipper">Schiffsführer *</label>
+                        <input type="text" id="fld-skipper" placeholder="Vor- und Nachname">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚓ Schiffsdaten</h2>
+                <div class="field-group">
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="fld-ship-name">Schiffsname</label>
+                            <input type="text" id="fld-ship-name" placeholder="z. B. Albatros">
+                        </div>
+                        <div class="field">
+                            <label for="fld-ship-type">Bootstyp</label>
+                            <input type="text" id="fld-ship-type" placeholder="z. B. Bavaria 38">
+                        </div>
+                    </div>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="fld-ship-reg">Kennzeichen</label>
+                            <input type="text" id="fld-ship-reg" placeholder="z. B. WÜ-12345">
+                        </div>
+                        <div class="field">
+                            <label for="fld-ship-engine">Motor</label>
+                            <input type="text" id="fld-ship-engine" placeholder="z. B. Volvo 30 PS">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📝 Notizen</h2>
+                <div class="field">
+                    <textarea id="fld-notes" placeholder="Freie Notizen zum Törn…" rows="4"></textarea>
+                </div>
+            </div>
+
+            <button type="button" id="btn-speichern" class="btn-save">💾 Törn speichern</button>
+            <button type="button" id="btn-abschliessen" class="btn-abschliessen">🏁 Törn abschließen</button>
+
+        </div><!-- /form-section -->
+
+    </div><!-- /tab-toern -->
+
+    <!-- ═══ Alle Törns ════════════════════════════════════════════ -->
+    <div id="tab-toernuebersicht" class="tab-panel tab-hidden">
+        <div class="seite-header">
+            <button type="button" class="btn-zurueck" onclick="seitenWechseln(null)">← Zurück</button>
+            <h1 class="seite-titel">🗂 Alle Törns</h1>
+        </div>
+        <div id="toernuebersicht-scroll" style="overflow-y:auto">
+            <div id="toern-uebersicht"></div>
+        </div>
+    </div><!-- /tab-toernuebersicht -->
+
+    <!-- ═══ Tab 2: Crew ════════════════════════════════════════════ -->
+    <div id="tab-crew" class="tab-panel tab-hidden">
+
+        <div class="tab-leer" id="tab-crew-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
+        </div>
+
+        <div id="tab-crew-inhalt" hidden>
+            <div class="card">
+                <h2>👥 Crew</h2>
+                <div class="crew-add-row">
+                    <div class="field">
+                        <label for="crew-input">Name</label>
+                        <input type="text" id="crew-input" placeholder="Crew-Mitglied">
+                    </div>
+                    <div class="field field-role">
+                        <label for="crew-role">Rolle</label>
+                        <input type="text" id="crew-role" value="Crew" placeholder="Rolle">
+                    </div>
+                    <button type="button" id="btn-crew-add">+ Hinzufügen</button>
+                </div>
+                <ul id="crew-list"></ul>
+            </div>
+        </div>
+
+    </div><!-- /tab-crew -->
+
+    <div id="tab-sicherheit" class="tab-panel tab-hidden">
+        <div class="seite-header">
+            <button type="button" class="btn-zurueck" onclick="seitenWechseln(null)">← Zurück</button>
+            <h1 class="seite-titel">🛟 Sicherheitseinweisung</h1>
+        </div>
+        <div id="sicherheit-leer" class="tab-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen.</p>
+        </div>
+        <div id="sicherheit-inhalt" hidden>
+            <div class="card">
+                <p id="sicherheit-datum" class="sicherheit-datum"></p>
+
+                <!-- 10 Punkte -->
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="1"> 1. Rettungswesten – Standort, Anlegen, Tragepflicht, Lifebelt</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="2"> 2. Mann über Bord – Rufen, Sichtkontakt, Ring, Finger, MOB-Knopf</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="3"> 3. Feuerlöscher – Standort, Löschdecke, Gas-Haupthahn</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="4"> 4. Seeventile – Standort, Schließen bei Wassereinbruch</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="5"> 5. Notruf – Funk Kanal 16, Mayday, Position, Personen an Bord</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="6"> 6. Erste Hilfe – Verbandskasten, Medikamente, med. Kenntnisse</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="7"> 7. Bedienung – Motor, Autopilot, Segel bergen, Anker, Funk, GPS</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="8"> 8. Verhalten an Deck – Hand fürs Schiff, kein Griff vor den Baum</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="9"> 9. Toilette – Was nicht ins WC, Seeventil öffnen/schließen</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="sich-check" data-punkt="10"> 10. Dokumente – Schiffspapiere, Versicherung, Crew-Liste</label>
+                </div>
+
+                <!-- Freitext -->
+                <div class="field" style="margin-top:1rem">
+                    <label for="sicherheit-notiz">Bemerkungen</label>
+                    <textarea id="sicherheit-notiz" rows="3" placeholder="Besonderheiten, Ausrüstung, Hinweise…"></textarea>
+                </div>
+
+                <!-- Crew-Bestätigung -->
+                <div id="sicherheit-crew-liste" class="sicherheit-crew-liste"></div>
+
+                <button type="button" class="btn-primary" style="margin-top:1rem;width:100%" onclick="sicherheitAbschliessen()">✅ Einweisung abschließen &amp; ins Logbuch</button>
+            </div>
+        </div>
+    </div><!-- /tab-sicherheit -->
+
+    <div id="tab-kontrolle" class="tab-panel tab-hidden">
+        <div class="seite-header">
+            <button type="button" class="btn-zurueck" onclick="seitenWechseln(null)">← Zurück</button>
+            <h1 class="seite-titel">✅ Tageskontrolle</h1>
+        </div>
+        <div id="kontrolle-leer" class="tab-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen.</p>
+        </div>
+        <div id="kontrolle-inhalt" hidden>
+            <div class="card">
+                <p id="kontrolle-datum" class="sicherheit-datum"></p>
+
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="1"> 1. Bilge – Wasser, Bilgepumpe manuell + elektrisch, Wasseranstieg</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="2"> 2. Motor – Ölstand, Kühlwasser, Keilriemen, Geräusche</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="3"> 3. Batterie / Strom – Ladestand, Landstrom, Navigation + Funk</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="4"> 4. Seeventile – Stellung, Dichtigkeit, WC / Küche / Motor</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="5"> 5. Gas-Anlage – Hahn geschlossen, kein Geruch, Schlauch in Ordnung</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="6"> 6. Deck / Takelage – Leinen, Fallen, Schoten, Splinte, Segel, nichts lose</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="7"> 7. Navigation / Sicherheit – GPS, Funk, Lichter, Rettungsmittel griffbereit</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="8"> 8. Wettercheck – Lage, Windentwicklung, Tagesentscheidung</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="9"> 9. Wasser / Vorräte – Trinkwasser, Treibstoff, Proviant</label>
+                </div>
+                <div class="sicherheit-punkt">
+                    <label><input type="checkbox" class="kontr-check" data-punkt="10"> 10. Allgemeiner Zustand – Ordnung, nichts lose, Crew über Tagesplan informiert</label>
+                </div>
+
+                <div class="field" style="margin-top:1rem">
+                    <label for="kontrolle-notiz">Auffälligkeiten / Bemerkungen</label>
+                    <textarea id="kontrolle-notiz" rows="3" placeholder="z.B. leicht Wasser in Bilge, Pumpe aktiviert…"></textarea>
+                </div>
+
+                <button type="button" class="btn-primary" style="margin-top:1rem;width:100%" onclick="kontrolleAbschliessen()">✅ Kontrolle abschließen &amp; ins Logbuch</button>
+            </div>
+        </div>
+    </div><!-- /tab-kontrolle -->
+
+    <!-- ═══ Hauptbereich: Logbuch + Log + Karte ══════════════════ -->
+    <div id="haupt-bereich">
+
+    <nav class="haupt-tab-nav">
+        <button type="button" class="haupt-tab-btn haupt-tab-aktiv" data-tab="tab-logbuch" onclick="hauptTabWechseln('tab-logbuch')">📘 Logbuch</button>
+        <button type="button" class="haupt-tab-btn" data-tab="tab-log" onclick="hauptTabWechseln('tab-log')">📋 Log</button>
+        <button type="button" class="haupt-tab-btn" data-tab="tab-karte" onclick="hauptTabWechseln('tab-karte')">🗺️ Karte</button>
+    </nav>
+
+    <!-- Logbuch -->
+    <div id="tab-logbuch" class="tab-panel">
+
+        <div class="tab-leer" id="tab-logbuch-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
+        </div>
+
+        <div id="tab-logbuch-inhalt" hidden>
+
+            <!-- Sticky: Rudergänger + Segeln/Motor + Aktionsbuttons -->
+            <div id="logbuch-sticky" class="logbuch-sticky" hidden>
+                <div id="ruder-bar" class="ruder-bar">
+                    <button type="button" id="btn-rudergaenger" class="btn-rudergaenger" onclick="ruderDropdownToggeln()">👤 Rudergänger: —</button>
+                    <div id="ruder-dropdown" class="ruder-dropdown" hidden></div>
+                </div>
+                <div id="zustand-bar" class="zustand-bar">
+                    <button type="button" id="btn-zustand-segeln" class="btn-zustand" onclick="zustandSetzen('segeln')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 20h16L12 2z"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+                        Segeln
+                    </button>
+                    <button type="button" id="btn-zustand-motor" class="btn-zustand" onclick="zustandSetzen('motor')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12"/></svg>
+                        Motor
+                    </button>
+                    <button type="button" id="btn-zustand-motorsegeln" class="btn-zustand btn-zustand-motorsegeln" onclick="_motorsegelnBestaetigen()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 22 20 2 20"/></svg>
+                        <span style="font-size:11px;line-height:1.2">Motor&shy;segeln</span>
+                    </button>
+                </div>
+
+                <!-- Fahrt-Start Buttons (wenn gestoppt) -->
+                <div id="fahrt-start-bar" class="hafenmanover-bar" hidden>
+                    <button type="button" class="btn-hafenmanover btn-ablegen" onclick="notizUndSpeichern('Ablegen')">🚢 Ablegen</button>
+                    <button type="button" class="btn-hafenmanover btn-anker-lichten" onclick="notizUndSpeichern('Anker lichten')">⚓ Anker lichten</button>
+                    <button type="button" class="btn-hafenmanover btn-von-boje" onclick="notizUndSpeichern('Von Boje')">🔵 Von Boje</button>
+                </div>
+
+                <!-- Fahrt-Stopp Buttons (wenn unterwegs) -->
+                <div id="fahrt-stopp-bar" class="hafenmanover-bar">
+                    <button type="button" id="btn-anlegen" class="btn-hafenmanover btn-anlegen" onclick="notizUndSpeichern('Anlegen')">🏁 Anlegen</button>
+                    <button type="button" class="btn-hafenmanover btn-ankern" onclick="notizUndSpeichern('Ankern')">⚓ Ankern</button>
+                    <button type="button" class="btn-hafenmanover btn-an-boje" onclick="notizUndSpeichern('An Boje')">🔵 An Boje</button>
+                </div>
+
+                <!-- Manöver-Schnellbuttons -->
+                <div id="manoever-grid" class="schnell-grid">
+                    <button type="button" id="btn-wende" class="btn-schnell-card" onclick="notizUndSpeichern('Wende')">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11a5 5 0 0 1 0 10H5"/><polyline points="7 3 3 7 7 11"/></svg>
+                        <span>↩️ Wende</span>
+                    </button>
+                    <button type="button" id="btn-halse" class="btn-schnell-card" onclick="notizUndSpeichern('Halse')">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7H10a5 5 0 0 0 0 10h9"/><polyline points="17 3 21 7 17 11"/></svg>
+                        <span>↪️ Halse</span>
+                    </button>
+                    <button type="button" id="btn-reffen" class="btn-schnell-card" onclick="reffenAuswaehlen()">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span>⛵ Reffen</span>
+                    </button>
+                </div>
+                <div id="reffen-auswahl" hidden style="display:flex;gap:8px;margin-top:4px">
+                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen 1')" style="flex:1">⛵ Reff 1</button>
+                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen 2')" style="flex:1">⛵ Reff 2</button>
+                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen')" style="flex:1;opacity:0.7">⛵ Reffen</button>
+                </div>
+
+                <!-- Aktions-Zeile: Detail + Notiz -->
+                <div class="eintrag-aktionen-zeile">
+                    <button type="button" class="btn-detail-eintrag" onclick="logModalOeffnen()">✏️ Händisch</button>
+                    <button type="button" class="btn-detail-eintrag" onclick="notizZumLetztenManoever('Notiz')">📒 Log-Buch</button>
+                    <button type="button" id="btn-notiz-manoever" class="btn-notiz-manoever" onclick="notizZumLetztenManoever()">💬 Manöver</button>
+                </div>
+
+                <!-- Daten/Karte Toggle -->
+                <div id="logbuch-toggle-bar" style="display:flex;gap:8px;margin:4px 0 0">
+                    <button type="button" id="btn-logbuch-daten" class="logbuch-toggle-btn aktiv" onclick="logbuchAnsichtWechseln('daten')">📋 Daten</button>
+                    <button type="button" id="btn-logbuch-opensea" class="logbuch-toggle-btn" onclick="logbuchAnsichtWechseln('opensea')">⚓ See</button>
+                </div>
+
+            </div>
+
+            <div class="card" id="log-card">
+
+                <!-- Kompakte Karte (versteckt) -->
+                <div id="logbuch-karte-container" style="display:none;margin-bottom:10px">
+                    <div id="logbuch-karte" style="width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--border)"></div>
+                </div>
+
+                <div id="logbuch-daten-scroll" style="overflow-y:auto">
+
+                    <!-- Letzte 3 Einträge Vorschau -->
+                    <div id="log-vorschau" class="log-vorschau" hidden></div>
+
+                    <!-- Lade-Status (GPS + Wind Meldung) -->
+                    <div id="log-lade-status" class="log-lade-status" hidden></div>
+
+                    <!-- Statusleiste (ganz unten, dezent) – 2-Zeilen-Layout -->
+                    <div id="logbuch-status" class="logbuch-status" hidden>
+                        <!-- Zeile 1: Fahrt-Status, Track, Timer (hohe Priorität) -->
+                        <div class="ls-zeile ls-zeile-1">
+                            <span id="ls-modus"></span>
+                            <span class="ls-sep">·</span>
+                            <span id="ls-track">🔴 Track aus</span>
+                            <span class="ls-sep">·</span>
+                            <span id="ls-seit"></span>
+                        </div>
+                        <!-- Zeile 2: Detail-Infos (Wind, SOG, nm, Manöver) -->
+                        <div class="ls-zeile ls-zeile-2">
+                            <span id="ls-wind-wrap" hidden><select id="ls-wind-select" class="ls-ruder-select" title="Wind ändern"></select></span>
+                            <span id="ls-sog-wrap" hidden><span class="ls-sep">·</span><span id="ls-sog"></span></span>
+                            <span id="ls-nm-gesamt-wrap" hidden><span class="ls-sep">·</span><span id="ls-nm-gesamt"></span></span>
+                            <span id="ls-nm-heute-wrap" hidden><span class="ls-sep">·</span><span id="ls-nm-heute"></span></span>
+                            <span id="ls-manoever-wrap" hidden><span class="ls-sep">·</span><span id="ls-manoever"></span></span>
+                            <span id="ls-kraengung-wrap"><span class="ls-sep">·</span><span id="ls-kraengung" onclick="kraengungErlauben()" style="cursor:pointer">⛵ ?</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Letzte Track-Punkte -->
+                    <div id="letzte-trackpunkte" class="letzte-trackpunkte" hidden></div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- /tab-logbuch -->
+
+    <!-- Log -->
+    <div id="tab-log" class="tab-panel tab-hidden">
+
+        <div class="tab-leer" id="tab-log-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
+        </div>
+
+        <div id="tab-log-inhalt" hidden>
+            <div class="filter-bar">
+                <button type="button" class="filter-btn filter-btn-aktiv" id="log-filter-gesamt" onclick="logFilterSetzen('gesamt')">Gesamt</button>
+                <button type="button" class="filter-btn" id="log-filter-heute" onclick="logFilterSetzen('heute')">Heute</button>
+            </div>
+            <div id="log-liste-scroll" style="overflow-y:auto">
+                <div id="log-liste"></div>
+            </div>
+        </div>
+
+    </div><!-- /tab-log -->
+
+    <!-- Karte -->
+    <div id="tab-karte" class="tab-panel tab-hidden">
+
+        <div class="tab-leer" id="tab-karte-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
+        </div>
+
+        <div id="tab-karte-inhalt" hidden>
+            <div class="filter-bar">
+                <button type="button" class="filter-btn filter-btn-aktiv" id="karte-filter-gesamt" onclick="karteFilterSetzen('gesamt')">Gesamt</button>
+                <button type="button" class="filter-btn" id="karte-filter-heute" onclick="karteFilterSetzen('heute')">Heute</button>
+            </div>
+            <div class="karte-aktionen">
+                <button type="button" class="btn-karte-aktion" id="btn-track-punkt" onclick="trackPunktHinzufuegen()">📍 Track-Punkt hinzufügen</button>
+                <button type="button" class="btn-karte-aktion" id="btn-karte-bearbeiten" onclick="karteBearbeitenToggeln()">✏️ Bearbeiten</button>
+                <button type="button" class="btn-karte-aktion btn-track-loeschen" onclick="trackLoeschen()">🗑 Track löschen</button>
+                <span id="karte-aktion-status" class="karte-aktion-status" hidden></span>
+            </div>
+            <div id="haupt-karte" class="haupt-karte"></div>
+        </div>
+
+    </div><!-- /tab-karte -->
+
+    </div><!-- /haupt-bereich -->
+
+    <!-- ═══ Tab 5: Statistik ═══════════════════════════════════════ -->
+    <div id="tab-statistik" class="tab-panel tab-hidden">
+
+        <div class="tab-leer" id="tab-statistik-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
+        </div>
+
+        <div id="tab-statistik-inhalt" hidden>
+            <div id="statistik-datum-filter-container"></div>
+            <div id="toern-statistik"></div>
+
+<div id="toern-abschluss"></div>
+            <button type="button" id="btn-csv-export"      class="btn-export">⬇ Export CSV</button>
+            <button type="button" id="btn-json-export"     class="btn-export">💾 Backup JSON</button>
+            <button type="button" id="btn-track-csv-export" class="btn-export">📥 Track als CSV exportieren</button>
+            <button type="button" id="btn-drucken"         class="btn-export">🖨 Drucken / PDF</button>
+            <button type="button" id="btn-abschluss-druck" class="btn-export">📋 Törnabschluss / PDF</button>
+            <button type="button" id="btn-logbuch-pdf" onclick="logbuchPdfErstellen()" class="btn-export">📄 Logbuch PDF (rechtl.)</button>
+            <button type="button" id="btn-kurzdruck" class="btn-export">📋 Kurzausdruck Manöver</button>
+            <button type="button" id="btn-daten-pruefen" class="btn-export btn-export-check">🔍 Daten prüfen</button>
+        </div>
+
+    </div><!-- /tab-statistik -->
+
+    <!-- ═══ Trackliste ════════════════════════════════════════════ -->
+    <div id="tab-trackliste" class="tab-panel tab-hidden">
+        <div class="seite-header">
+            <button type="button" class="btn-zurueck" onclick="seitenWechseln(null)">← Zurück</button>
+            <h1 class="seite-titel">📍 Trackliste</h1>
+        </div>
+        <div id="trackliste-scroll" style="overflow-y:auto">
+        <div id="trackliste-leer" class="tab-leer">
+            <p>⬆ Bitte zuerst einen Törn auswählen.</p>
+        </div>
+        <div id="trackliste-inhalt" hidden>
+            <div class="card">
+                <div id="trackliste-info" class="trackliste-info"></div>
+                <div class="ab-tabelle-wrap">
+                    <table class="ab-tabelle">
+                        <thead><tr>
+                            <th>#</th><th>Zeit</th><th>Lat</th><th>Lon</th><th>SOG kn</th>
+                        </tr></thead>
+                        <tbody id="trackliste-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div><!-- /trackliste-scroll -->
+    </div><!-- /tab-trackliste -->
+
+    <!-- ═══ Einstellungen ══════════════════════════════════════════ -->
+    <div id="tab-einstellungen" class="tab-panel tab-hidden">
+        <div class="seite-header">
+            <button type="button" class="btn-zurueck" onclick="seitenWechseln(null)">← Zurück</button>
+            <h1 class="seite-titel">⚙️ Einstellungen</h1>
+        </div>
+        <div class="card einstellungen-card">
+            <h2 class="einstellungen-gruppe-titel">📍 Track-Aufzeichnung</h2>
+            <div class="einstellung-zeile">
+                <label class="einstellung-label" for="track-distanz-select">Track-Auflösung</label>
+                <select id="track-distanz-select" class="einstellung-select" onchange="trackDistanzSpeichern(parseFloat(this.value))">
+                    <option value="0.05">0,05 nm (~93 m)</option>
+                    <option value="0.1">0,1 nm (~185 m) Standard</option>
+                    <option value="0.2">0,2 nm (~370 m)</option>
+                    <option value="0.3">0,3 nm (~556 m)</option>
+                    <option value="0.4">0,4 nm (~741 m)</option>
+                    <option value="0.5">0,5 nm (~926 m)</option>
+                </select>
+            </div>
+            <div class="einstellung-zeile">
+                <label class="einstellung-label" for="track-accuracy-select">Max. GPS Ungenauigkeit</label>
+                <select id="track-accuracy-select" class="einstellung-select" onchange="trackAccuracySpeichern(parseFloat(this.value))">
+                    <option value="25">25 m (sehr genau)</option>
+                    <option value="50">50 m (genau)</option>
+                    <option value="100">100 m (Standard)</option>
+                    <option value="200">200 m (tolerant)</option>
+                </select>
+            </div>
+            <div class="einstellung-zeile">
+                <label class="einstellung-label" for="sog-schwelle-select">GPS-Jitter-Filter (SOG)</label>
+                <select id="sog-schwelle-select" class="einstellung-select" onchange="sogSchwelleSpeichern(parseFloat(this.value))">
+                    <option value="0.05">0,05 kn</option>
+                    <option value="0.1">0,1 kn (Standard)</option>
+                    <option value="0.2">0,2 kn</option>
+                    <option value="0.3">0,3 kn</option>
+                    <option value="0.4">0,4 kn</option>
+                    <option value="0.5">0,5 kn</option>
+                </select>
+            </div>
+            <div class="einstellung-zeile">
+                <label class="einstellung-label" for="track-intervall-select">Fallback-Intervall</label>
+                <select id="track-intervall-select" class="einstellung-select" onchange="trackIntervallSpeichern(parseFloat(this.value))">
+                    <option value="30">0,5 min (30s)</option>
+                    <option value="60">1 min (60s)</option>
+                    <option value="90">1,5 min (90s)</option>
+                    <option value="120">2 min (120s) Standard</option>
+                    <option value="150">2,5 min (150s)</option>
+                    <option value="180">3 min (180s)</option>
+                </select>
+            </div>
+        </div>
+    </div><!-- /tab-einstellungen -->
+
+
+</div><!-- /app -->
+
+<!-- Export-Dialog -->
+<div id="export-dialog-overlay" class="export-dialog-overlay" hidden onclick="exportDialogSchliessen()">
+    <div class="export-dialog" onclick="event.stopPropagation()">
+        <h3>📤 Daten exportieren</h3>
+        <button type="button" class="btn-primary" onclick="datenExportAktivToern()">Aktiver Törn</button>
+        <button type="button" class="btn-secondary" onclick="datenExportAlle()">Alle Törns</button>
+        <button type="button" class="btn-secondary" onclick="exportDialogSchliessen()">Abbrechen</button>
+    </div>
+</div>
+
+<!-- Import File-Input (versteckt) -->
+<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="datenImportVerarbeiten(event)">
+
+<!-- Fixe Leiste unten -->
+<div class="bottom-bar">
+    <div id="btn-fahrt-status" class="btn-fahrt-status btn-fahrt-stopp">
+        <span id="btn-fahrt-status-text">STOPP</span>
+    </div>
+    <div class="bottom-bar-mitte">
+        <span id="version-label" class="bottom-bar-version" onclick="updateErzwingen()"></span>
+        <span class="bottom-bar-autor">Al.Gether</span>
+    </div>
+    <button type="button" id="btn-mob" class="btn-mob-float">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M9 8h6l-1 6"/><path d="M4 19c2-3 4.5-2 8-1s6 2 8-2"/><line x1="12" y1="14" x2="10" y2="19"/></svg>
+        <span>MOB</span>
+    </button>
+</div>
+
+<!-- MOB-Notfall-Overlay -->
+<div id="mob-overlay" class="mob-overlay" style="display:none">
+    <div class="mob-overlay-content">
+        <div class="mob-typ-bar">
+            <button id="mob-typ-mob"    class="mob-typ-btn aktiv" onclick="mobTypSetzen('mob')">🆘 MOB</button>
+            <button id="mob-typ-boje"   class="mob-typ-btn"       onclick="mobTypSetzen('boje')">🔵 Boje</button>
+            <button id="mob-typ-uebung" class="mob-typ-btn"       onclick="mobTypSetzen('uebung')">🎓 Übung</button>
+        </div>
+        <div class="mob-titel">🆘 MANN ÜBER BORD</div>
+        <div class="mob-info-grid">
+            <span class="mob-label">Zeit</span>
+            <span id="mob-zeit-wert" class="mob-wert">—</span>
+            <span class="mob-label">GPS</span>
+            <span id="mob-pos-wert" class="mob-wert">wird ermittelt…</span>
+            <span class="mob-label">SOG</span>
+            <span id="mob-sog-wert" class="mob-wert">—</span>
+        </div>
+        <div class="mob-timer-box">
+            Vergangen: <span id="mob-timer-wert" class="mob-timer-zahl">00:00</span>
+        </div>
+        <button type="button" class="mob-geborgen-btn" onclick="mobGeborgen()">✅ GEBORGEN</button>
+        <textarea id="mob-notiz" class="mob-notiz-feld" placeholder="Notiz (optional)…" rows="2"></textarea>
+        <details class="mob-mayday-details">
+            <summary>📻 Mayday-Text (tippen zum öffnen)</summary>
+            <p id="mob-mayday-text-de" class="mob-mayday-text"></p>
+            <p id="mob-mayday-text-en" class="mob-mayday-text" style="margin-top:8px;opacity:0.75;font-style:italic"></p>
+        </details>
+    </div>
+</div>
+
+<!-- Druckbereich (nur beim Drucken sichtbar) -->
+<div id="druck-bereich"></div>
+<div id="abschluss-druck-bereich"></div>
+<div id="logbuch-pdf-bereich"></div>
+
+<!-- Notiz-Popup (erscheint nach jedem Schnell-Eintrag) -->
+<div id="notiz-popup-overlay" class="notiz-popup-overlay" style="display:none">
+    <div class="notiz-popup-box">
+        <div class="notiz-popup-header">
+            <span id="notiz-popup-typ" class="notiz-popup-typ-label"></span>
+        </div>
+        <textarea id="notiz-text" class="notiz-text" placeholder="Notiz (optional)…" rows="3"></textarea>
+        <div class="notiz-btn-zeile">
+            <button type="button" id="btn-notiz-mic" class="btn-notiz-aktion" onclick="notizMikrofonKlick()">🎤</button>
+            <button type="button" class="btn-notiz-aktion" onclick="notizTextLeeren()">🗑</button>
+            <button type="button" class="btn-secondary" onclick="notizPopupSchliessen()">✕ Schließen</button>
+            <button type="button" class="btn-notiz-speichern" onclick="notizPopupSpeichern()">💾 Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Detaillierter Eintrag Modal -->
+<div id="log-modal-overlay" class="modal-overlay" style="display:none">
+    <div class="modal-box log-modal-box">
+        <h2>✏️ Eintrag</h2>
+        <div class="log-modal-felder">
+            <div class="field">
+                <label for="log_zeit">Zeit *</label>
+                <input type="datetime-local" id="log_zeit">
+            </div>
+            <div class="field">
+                <label for="log_typ">Typ</label>
+                <select id="log_typ">
+                    <option>Ablegen</option>
+                    <option>Anlegen</option>
+                    <option>Ankern</option>
+                    <option>Anker lichten</option>
+                    <option>An Boje</option>
+                    <option>Von Boje</option>
+                    <option>Segeln</option>
+                    <option>Motor an</option>
+                    <option>Wende</option>
+                    <option>Halse</option>
+                    <option>Reffen</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="rudergaenger">Rudergänger</label>
+                <select id="rudergaenger"><option value="">— Rudergänger —</option></select>
+            </div>
+            <div class="field">
+                <label for="log_wind">Wind (kn) <span id="wind-loading" hidden>⏳</span></label>
+                <input type="number" id="log_wind" step="0.1" min="0" max="99" placeholder="0.0">
+            </div>
+            <div class="field">
+                <label for="log_wind_dir">Windrichtung</label>
+                <select id="log_wind_dir">
+                    <option value="">—</option>
+                    <option>N</option><option>NE</option><option>E</option><option>SE</option>
+                    <option>S</option><option>SW</option><option>W</option><option>NW</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="log_text">Bemerkung</label>
+                <input type="text" id="log_text" placeholder="Was ist passiert?">
+            </div>
+        </div>
+        <div class="log-modal-btns">
+            <button type="button" id="btn-neuer-log" class="btn-secondary">🕐 Zeit aktualisieren</button>
+            <button type="button" id="btn-log-speichern" class="btn-primary">+ Eintrag speichern</button>
+            <button type="button" id="btn-modal-abbrechen" class="btn-secondary">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
+<script src="./leaflet.js"></script>
+<script src="storage.js?v=2.5.175"></script>
+<script src="config.js?v=2.5.175"></script>
+<script src="track.js?v=2.5.175"></script>
+<script src="karte.js?v=2.5.175"></script>
+<script src="statistik.js?v=2.5.175"></script>
+<script src="modals.js?v=2.5.175"></script>
+<script src="app.js?v=2.5.175"></script>
+<script>
+if ("serviceWorker" in navigator) {
+    /* APP_VERSION aus config.js als Cache-Buster – ändert sich bei jedem Version-Bump automatisch */
+    const _swVersion = (typeof APP_VERSION !== "undefined") ? APP_VERSION : Date.now();
+    navigator.serviceWorker.register("sw.js?v=" + _swVersion)
+        .catch(err => console.warn("SW-Registrierung fehlgeschlagen:", err));
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        setTimeout(() => window.location.reload(), 1000);
+    });
+}
+/* Cache-Busting-Parameter nach Update-Reload entfernen */
+if (window.location.search.startsWith("?v=")) {
+    history.replaceState(null, "", window.location.pathname);
+}
+updateButtonInit();
+autoUpdatePruefen();
+_updateIntervalId = setInterval(autoUpdatePruefen, 30000);
+</script>
+
+<div id="trackpunkt-zeit-overlay" class="modal-overlay" style="display:none">
+    <div class="modal-box" style="max-width:320px">
+        <h2>📍 Track-Punkt Zeit</h2>
+        <div class="field" style="margin-top:1rem">
+            <label for="trackpunkt-zeit-input">Uhrzeit</label>
+            <input type="time" id="trackpunkt-zeit-input" style="font-size:1.4rem;text-align:center;width:100%">
+        </div>
+        <div class="field" style="margin-top:0.75rem">
+            <label for="trackpunkt-datum-input">Datum</label>
+            <input type="date" id="trackpunkt-datum-input" style="font-size:1.1rem;text-align:center;width:100%">
+        </div>
+        <div class="log-modal-btns" style="margin-top:1rem">
+            <button type="button" class="btn-primary" onclick="trackpunktZeitBestaetigen()">✅ Setzen</button>
+            <button type="button" class="btn-secondary" onclick="trackpunktZeitAbbrechen()">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="schiffsfuehrer-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box" style="max-width:380px; width:92%">
+    <h2 style="margin-bottom:12px">🧑‍✈️ Schiffsführer wechseln</h2>
+
+    <label style="display:block;margin-bottom:4px;font-weight:600">Schiffsführer</label>
+    <div id="sf-crew-buttons" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
+    <input id="sf-name" type="hidden">
+
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <label style="display:block;margin-bottom:4px;font-weight:600">Datum</label>
+        <input id="sf-datum" type="date"
+          style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;
+                 border:1.5px solid var(--border);font-size:1rem">
+      </div>
+      <div style="flex:1">
+        <label style="display:block;margin-bottom:4px;font-weight:600">Zeit</label>
+        <input id="sf-zeit" type="time"
+          style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;
+                 border:1.5px solid var(--border);font-size:1rem">
+      </div>
+    </div>
+
+    <label style="display:block;margin-bottom:4px;font-weight:600">Unterschrift</label>
+    <canvas id="sf-canvas"
+      style="width:100%;height:140px;border:1.5px solid var(--border);
+             border-radius:10px;background:#fff;touch-action:none;cursor:crosshair;
+             margin-bottom:4px">
+    </canvas>
+    <button type="button" onclick="sfCanvasLeeren()"
+      style="font-size:0.8rem;background:none;border:none;color:var(--primary);
+             cursor:pointer;padding:0;margin-bottom:14px">
+      ✕ Unterschrift löschen
+    </button>
+
+    <div class="modal-btns">
+      <button type="button" class="modal-btn" onclick="schiffsfuehrerModalSchliessen()">Abbrechen</button>
+      <button type="button" class="modal-btn primary" onclick="schiffsfuehrerWechselnSpeichern()">Übernehmen</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

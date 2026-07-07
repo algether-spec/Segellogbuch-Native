@@ -1,0 +1,2892 @@
+/* ======================
+   STYLE.CSS – Segellogbuch
+====================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f4f6f9;
+    color: #1e293b;
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+    overscroll-behavior: none;
+}
+
+.app {
+    max-width: 680px;
+    margin: 0 auto;
+    padding-bottom: 110px;
+}
+
+/* --- Header ----------------------------------------------------- */
+
+header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 18px 20px 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(26,58,92,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 60;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-titel {
+    flex: 1;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+header p {
+    font-size: 0.95rem;
+    opacity: 1;
+    margin-top: 3px;
+    font-weight: 500;
+    color: white;
+}
+
+.btn-hamburger {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.btn-hamburger:active { background: rgba(255,255,255,0.3); }
+
+/* --- Sidebar ---------------------------------------------------- */
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    z-index: 300;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-overlay.sidebar-open { display: block; }
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    max-width: 80vw;
+    background: #fff;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+
+.sidebar.sidebar-open { transform: translateX(0); }
+
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 14px;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+}
+
+.sidebar-titel {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.btn-sidebar-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-sidebar-close:active { background: rgba(255,255,255,0.3); }
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    flex: 1;
+}
+
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-btn:active { background: #f1f5f9; }
+
+.sidebar-btn.sidebar-aktiv {
+    color: #1a3a5c;
+    background: #eff6ff;
+    border-left-color: #1a3a5c;
+    font-weight: 700;
+}
+
+/* --- Sidebar Settings ------------------------------------------- */
+/* --- Einstellungs-Seite ----------------------------------------- */
+.seite-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px 0;
+}
+.btn-zurueck {
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a5c;
+    cursor: pointer;
+    padding: 6px 0;
+}
+.seite-titel {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a3a5c;
+    margin: 0;
+}
+.einstellungen-card {
+    margin: 12px 16px;
+}
+.einstellungen-gruppe-titel {
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.einstellung-zeile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+}
+.einstellung-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}
+.einstellung-select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a3a5c;
+    cursor: pointer;
+    min-width: 160px;
+}
+.einstellung-select:focus { outline: none; border-color: #1a3a5c; }
+
+/* --- Törnauswahl ------------------------------------------------ */
+
+.toern-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.toern-bar select {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 16px;
+    background: #fff;
+    color: #1e293b;
+}
+
+/* --- Buttons ---------------------------------------------------- */
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    border: none;
+    border-radius: 16px;
+    padding: 10px 16px;
+    font-size: 14px;
+    transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+button:active { opacity: 0.75; }
+
+.btn-primary {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.25);
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.btn-save {
+    width: 100%;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #fff;
+    font-size: 16px;
+    padding: 13px;
+    border-radius: 16px;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+}
+
+.btn-abschliessen {
+    width: 100%;
+    background: linear-gradient(135deg, #e8841a 0%, #f59e0b 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 16px;
+    margin-top: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(232,132,26,0.3);
+}
+
+.btn-abschliessen:active { opacity: 0.85; }
+
+.btn-export {
+    width: 100%;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 14px;
+    padding: 11px;
+    border-radius: 12px;
+    margin-top: 6px;
+}
+
+/* --- Tab-Navigation --------------------------------------------- */
+
+.tab-nav {
+    display: flex;
+    gap: 4px;
+    background: #dde3ec;
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 52px;
+    padding: 10px 2px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.tab-btn:active { background: rgba(0,0,0,0.07); }
+
+.tab-btn.tab-aktiv {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.35);
+}
+
+.tab-panel  { display: block; }
+.tab-hidden { display: none !important; }
+
+/* --- Tab-Leer-Meldung ------------------------------------------- */
+
+.tab-leer {
+    padding: 40px 16px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* --- Detaillierter Eintrag Button ------------------------------- */
+
+.eintrag-aktionen-zeile {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn-detail-eintrag {
+    flex: 1;
+    padding: 11px 8px;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+.btn-detail-eintrag:active { background: #e2e8f0; box-shadow: none; }
+
+.btn-notiz-manoever {
+    flex: 1;
+    padding: 11px 8px;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.btn-notiz-manoever:active { background: #e2e8f0; box-shadow: none; }
+
+@keyframes notiz-hinweis-blink {
+    0%, 100% { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+    50%       { background: #e8841a; color: #fff;    border-color: #e8841a; }
+}
+.btn-notiz-blinkt {
+    animation: notiz-hinweis-blink 1s ease-in-out 5;
+}
+
+/* --- Log Vorschau (letzte 3 Einträge) --------------------------- */
+
+.log-vorschau {
+    margin-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.log-vorschau-zeile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 2px;
+    font-size: 12px;
+    color: #64748b;
+}
+.log-vorschau-zeit {
+    font-variant-numeric: tabular-nums;
+    color: #94a3b8;
+    min-width: 36px;
+}
+.log-vorschau-info {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* --- Log Modal -------------------------------------------------- */
+
+.log-modal-box {
+    text-align: left;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.log-modal-box h2 { text-align: left; margin-bottom: 14px; }
+
+.log-modal-felder {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.log-modal-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-primary {
+    padding: 12px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.25);
+}
+
+.btn-primary:active { opacity: 0.85; }
+
+/* --- Schnellbuttons Grid ---------------------------------------- */
+
+/* --- Logbuch Lade-Status (GPS-Spinner) ------------------------- */
+
+.log-lade-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    height: 28px;
+}
+.log-lade-status::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: gps-spinner 0.75s linear infinite;
+}
+@keyframes gps-spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Logbuch-Statusleiste --------------------------------------- */
+
+.logbuch-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.ls-zeile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ls-zeile-1 { font-size: 17px; font-weight: 700; }
+.ls-zeile-2 { font-size: 13px; font-weight: 600; color: #64748b; gap: 5px; }
+
+.letzte-trackpunkte {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 6px 14px;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+/* Details/Summary für ausklappbare Track-Punkte */
+.ltp-details { width: 100%; }
+.ltp-summary {
+    cursor: pointer;
+    list-style: none;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+    padding: 2px 0;
+    color: #475569;
+    font-weight: 700;
+}
+.ltp-summary::-webkit-details-marker { display: none; }
+.ltp-detail-liste {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.ltp-zeile {
+    font-family: monospace;
+    letter-spacing: 0.02em;
+}
+
+.ls-sep {
+    color: #cbd5e1;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+#ls-modus { flex-shrink: 0; font-weight: 700; color: #1a3a5c; }
+
+#ls-seit { flex-shrink: 0; color: #e8841a; font-weight: 700; }
+
+.ls-ruder-select {
+    border: none;
+    background: transparent;
+    color: #0c4a6e;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    max-width: 130px;
+    text-decoration: underline dotted #7dd3fc;
+    text-underline-offset: 3px;
+}
+
+/* --- Hafen-Manöver (Start / Stopp Bars) ------------------------- */
+
+.hafenmanover-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.btn-hafenmanover {
+    min-height: 68px;
+    padding: 16px 6px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    border: 2px solid rgba(0,0,0,0.15);
+    cursor: pointer;
+    color: #fff;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-hafenmanover:active { opacity: 0.8; transform: scale(0.97); }
+.btn-hafenmanover:disabled { background: #94a3b8; opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Start-Buttons */
+.btn-ablegen      { background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 3px 8px rgba(14,165,233,0.3); }
+.btn-anker-lichten{ background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 3px 8px rgba(245,158,11,0.3); }
+.btn-von-boje     { background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 3px 8px rgba(99,102,241,0.3); }
+
+/* Stopp-Buttons */
+.btn-anlegen      { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 3px 8px rgba(16,185,129,0.3); }
+.btn-ankern       { background: linear-gradient(135deg, #64748b, #475569); box-shadow: 0 3px 8px rgba(100,116,139,0.25); }
+.btn-an-boje      { background: linear-gradient(135deg, #64748b, #475569); box-shadow: 0 3px 8px rgba(100,116,139,0.25); } /* Grau = Stopp-Semantik, wie Ankern */
+
+/* Reff-Untermenü: gleicher Manöver-Blauton wie Ablegen */
+#reffen-auswahl .btn-hafenmanover {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    box-shadow: 0 3px 8px rgba(14,165,233,0.30);
+}
+
+/* --- Zustandsbuttons -------------------------------------------- */
+
+.zustand-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.btn-zustand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 64px;
+    padding: 15px 10px;
+    border-radius: 16px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #cbd5e1;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.btn-zustand-aktiv {
+    border-color: rgba(0,0,0,0.15);
+    color: #fff;
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    box-shadow: 0 3px 10px rgba(22,163,74,0.35);
+}
+
+.btn-zustand[id="btn-zustand-motor"].btn-zustand-aktiv {
+    border-color: rgba(0,0,0,0.15);
+    color: #fff;
+    background: linear-gradient(135deg, #e8841a 0%, #f97316 100%);
+    box-shadow: 0 3px 10px rgba(232,132,26,0.35);
+}
+
+.btn-zustand:active { opacity: 0.8; }
+
+/* Motorsegeln – 3. Button (explizit, rot, kleiner) */
+.btn-zustand-motorsegeln {
+    min-width: 68px;
+    min-height: 64px;
+    padding: 10px 8px;
+    font-size: 12px;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 2px solid #fca5a5;
+    gap: 4px;
+    flex-direction: column;
+}
+.btn-zustand-motorsegeln.btn-zustand-aktiv {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border-color: rgba(0,0,0,0.15);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(220,38,38,0.40);
+}
+
+/* Antrieb-Hinweis: oranger Rand + Pulse wenn Fahrt aber kein Antrieb gesetzt */
+@keyframes antrieb-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(232,132,26,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(232,132,26,0); }
+    100% { box-shadow: 0 0 0 0 rgba(232,132,26,0); }
+}
+.btn-zustand.antrieb-hinweis {
+    border-color: #e8841a;
+    animation: antrieb-pulse 1.4s ease-in-out infinite;
+}
+
+/* --- Logbuch Sticky Bar (Rudergänger + Segeln/Motor) ----------- */
+
+.logbuch-sticky {
+    position: sticky;
+    top: 126px;
+    z-index: 40;
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px 14px 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#log-card {
+    padding: 0;
+}
+
+#logbuch-daten-scroll {
+    min-height: 150px;
+    overflow-y: auto;
+}
+
+#log-liste-scroll,
+#trackliste-scroll,
+#toernuebersicht-scroll {
+    min-height: 200px;
+    overflow-y: auto;
+}
+
+#logbuch-karte {
+    isolation: isolate;
+}
+
+.logbuch-tiefen-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text, #1e293b);
+    cursor: pointer;
+    padding: 4px 2px;
+}
+
+/* --- Log-Card Header (Titel + Rudergänger nebeneinander) -------- */
+
+.log-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.log-card-header h2 {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    flex: 1;
+}
+
+/* --- Rudergänger-Button ----------------------------------------- */
+
+.ruder-bar {
+    position: relative;
+}
+
+.log-card-header .ruder-bar {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.btn-rudergaenger {
+    width: 100%;
+    min-height: 56px;
+    padding: 16px 16px;
+    border-radius: 10px;
+    background: #fff;
+    color: #334155;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #94a3b8;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.log-card-header .btn-rudergaenger {
+    width: auto;
+    min-width: 90px;
+}
+
+.btn-rudergaenger:active { background: #f1f5f9; color: #1e293b; }
+
+.ruder-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.ruder-option {
+    display: block;
+    width: 100%;
+    padding: 13px 16px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+    color: #1e293b;
+}
+.ruder-option:last-child { border-bottom: none; }
+.ruder-option:active { background: #f0f9ff; }
+.ruder-option.ruder-aktiv { font-weight: 700; color: #0369a1; background: #f0f9ff; }
+
+.ruder-dd-leer {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.schnell-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.btn-schnell-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 72px;
+    padding: 10px 6px 8px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #bae6fd 0%, #7dd3fc 100%);
+    color: #0c4a6e;
+    font-size: 11px;
+    font-weight: 700;
+    border: 2px solid #38bdf8;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    line-height: 1.2;
+    box-shadow: 0 3px 8px rgba(14,165,233,0.25);
+}
+
+.btn-schnell-card:active { background: linear-gradient(145deg, #bae6fd 0%, #7dd3fc 100%); box-shadow: none; }
+
+.btn-schnell-card:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 1.5px solid #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.60;
+}
+
+.btn-weitere-card {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-weitere-card:active { background: #e2e8f0; }
+
+/* --- Weitere-Panel ---------------------------------------------- */
+
+.schnell-weitere {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.weitere-gruppe {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.weitere-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.schnell-weitere-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.btn-schnell-sm {
+    padding: 11px 6px;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-schnell-sm:active { background: #e2e8f0; }
+
+/* --- Status Floating Button (oben rechts) ----------------------- */
+
+.btn-fahrt-status {
+    border: none;
+    border-radius: 56px;
+    min-width: 68px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.btn-fahrt-stopp {
+    background: #dc2626;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+}
+
+.btn-fahrt-fahrt {
+    background: #16a34a;
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.5);
+}
+
+.btn-fahrt-status:active { opacity: 0.85; }
+
+/* --- MOB Floating Button ---------------------------------------- */
+
+.btn-mob-float {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);  /* Violett = Notfall, klar von STOPP-Rot getrennt */
+    color: #fff;
+    border: none;
+    border-radius: 56px;
+    min-width: 64px;
+    height: 64px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 900;
+    display: flex;
+    flex-direction: column;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.55);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.btn-mob-float span { font-size: 12px; font-weight: 900; letter-spacing: 1px; }
+.btn-mob-float:active { opacity: 0.85; }
+
+/* --- Fixe Leiste unten ------------------------------------------ */
+
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    gap: 10px;
+    -webkit-transform: translateZ(0);
+}
+
+.bottom-bar-mitte {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+    pointer-events: none;
+}
+
+
+.bottom-bar-autor {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+/* --- Update-Hinweis --------------------------------------------- */
+
+.update-hinweis {
+    background: #fff7ed;
+    border: 1px solid #f97316;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #9a3412;
+    flex-wrap: wrap;
+}
+
+.update-hinweis button {
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: #f97316;
+    color: #fff;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* --- Auto-Backup-Banner ----------------------------------------- */
+
+.backup-banner {
+    background: #fefce8;
+    border: 1px solid #fde047;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    color: #713f12;
+    flex-wrap: wrap;
+}
+
+.backup-banner-btns {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-backup-restore {
+    background: #059669;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-backup-ignore {
+    background: transparent;
+    color: #713f12;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* --- PWA-Migrations-Modal --------------------------------------- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 24px 24px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal-box h2 {
+    font-size: 19px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.modal-box p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.modal-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 15px;
+    border-radius: 12px;
+}
+
+.migration-ok  { color: #059669; font-weight: 700; margin-top: 14px; font-size: 14px; }
+.migration-err { color: #dc2626; font-weight: 700; margin-top: 14px; font-size: 14px; }
+
+/* --- Versionszeile ---------------------------------------------- */
+
+.version-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding: 0 4px;
+    gap: 10px;
+}
+
+.bottom-bar-version {
+    font-size: 12px;
+    color: #64748b;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.bottom-bar-version.update-verfuegbar {
+    color: #059669;
+    font-weight: 600;
+    animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(5,150,105,0.4); }
+    50%       { box-shadow: 0 0 0 6px rgba(5,150,105,0); }
+}
+
+/* --- Karte ------------------------------------------------------ */
+
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a3a5c;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* --- Formular --------------------------------------------------- */
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.field input,
+.field textarea,
+.field select {
+    padding: 10px 12px;
+    border-radius: 9px;
+    border: 1px solid #cbd5e1;
+    font-size: 16px;
+    font-family: inherit;
+    background: #fff;
+    color: #1e293b;
+    width: 100%;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+    outline: none;
+    border-color: #1a3a5c;
+    box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+/* --- Crew ------------------------------------------------------- */
+
+.crew-add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: flex-end;
+}
+
+.crew-add-row .field {
+    flex: 2;
+}
+
+.crew-add-row .field-role {
+    flex: 1;
+}
+
+.crew-add-row button {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: #fff;
+    align-self: flex-end;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(26,58,92,0.2);
+}
+
+#crew-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.crew-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.crew-info {
+    font-size: 14px;
+    color: #334155;
+}
+
+.btn-crew-del {
+    padding: 4px 9px;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+}
+
+.btn-crew-restore {
+    padding: 4px 9px;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+}
+
+/* Spezifität erhöht mit li. damit event-item nicht gewinnt */
+li.event-item-storniert {
+    background: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+    border-left: 4px solid #dc2626 !important;
+}
+
+li.event-item-storniert .event-time-label {
+    text-decoration: line-through;
+    color: #9ca3af !important;
+}
+
+li.event-item-storniert .event-note-text {
+    text-decoration: line-through;
+    color: #9ca3af !important;
+    font-style: normal;
+}
+
+li.event-item-storniert .event-pos {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.crew-empty {
+    font-size: 13px;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 6px 0;
+}
+
+/* --- Status ----------------------------------------------------- */
+
+.status-msg {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.status-ok    { background: #d1fae5; color: #065f46; }
+.status-error { background: #fee2e2; color: #991b1b; }
+
+/* --- Löschen-Button Zeile --------------------------------------- */
+
+.delete-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
+/* --- Ereignisse ------------------------------------------------- */
+
+.event-add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.event-add-row .field:first-child { flex: 2; min-width: 140px; }
+.event-add-row .field:nth-child(2),
+.event-add-row .field:nth-child(3) { flex: 1; min-width: 100px; }
+
+#event-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.event-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.event-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.event-type {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a3a5c;
+}
+
+.event-time-label {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.event-note-text {
+    font-size: 13px;
+    color: #334155;
+    margin-top: 2px;
+}
+
+.event-pos {
+    display: block;
+    font-size: 11px;
+    color: #0369a1;
+    margin-top: 2px;
+    text-decoration: none;
+}
+
+.event-pos:hover { text-decoration: underline; }
+
+.event-empty {
+    font-size: 13px;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 6px 0;
+}
+
+.event-wetter-text {
+    font-size: 12px;
+    color: #0369a1;
+    margin-top: 2px;
+}
+
+.btn-wetter-toggle {
+    background: none;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 7px;
+    margin-bottom: 0;
+}
+
+/* --- Törnübersicht ---------------------------------------------- */
+
+.tu-liste {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tu-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f8fafc;
+    transition: border-color 0.15s;
+}
+
+.tu-item.tu-aktiv {
+    border-color: #1a3a5c;
+    background: #eff6ff;
+}
+
+.tu-main {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    text-align: left;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.tu-main:active { opacity: 0.7; }
+
+.tu-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a3a5c;
+    flex: 1 1 100%;
+}
+
+.tu-meta {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.tu-badge {
+    font-size: 11px;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+.tu-nm-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.tu-del {
+    padding: 8px 12px;
+    background: none;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 0;
+    border-left: 1px solid #e2e8f0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+}
+
+.tu-del:hover { background: #fee2e2; color: #dc2626; }
+
+.tu-leer {
+    font-size: 13px;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* --- Törnstatistik ---------------------------------------------- */
+
+.stat-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-block {
+    flex: 1;
+    min-width: 140px;
+}
+
+.stat-block-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.stat-gesamt {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a3a5c;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.stat-liste {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-liste li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.stat-typ  { color: #334155; }
+.stat-anz  { font-weight: 700; color: #1a3a5c; }
+.stat-nm-gesamt { border-top: 1px solid #e2e8f0; margin-top: 4px; padding-top: 4px; }
+
+/* --- Track-Karte ------------------------------------------------ */
+
+.trackliste-info {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.track-stat-mini {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.track-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.track-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #64748b;
+}
+
+.track-stat-wert {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a3a5c;
+    line-height: 1;
+}
+
+/* --- Haupt-Tabs (Logbuch / Log / Karte) ------------------------- */
+
+.haupt-tab-nav {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    position: sticky;
+    top: 76px;
+    z-index: 55;
+}
+
+.haupt-tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+    border: 2px solid #a8c8ee;
+    background: #deeaf8;
+    color: #1a6fc4;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    min-height: 40px;
+}
+
+.haupt-tab-btn.haupt-tab-aktiv {
+    background: #1a6fc4;
+    border-color: #1a6fc4;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(26,111,196,0.3);
+}
+
+.haupt-karte {
+    height: 360px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    isolation: isolate;
+}
+
+/* --- Track-Karte (Statistik) ------------------------------------ */
+
+.track-karte {
+    height: 280px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+    isolation: isolate;
+}
+
+.track-tabelle-wrap {
+    overflow-x: auto;
+    margin-top: 4px;
+}
+
+.track-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.track-tabelle th {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.track-tabelle td {
+    border: 1px solid #e2e8f0;
+    padding: 5px 8px;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.track-tabelle tbody tr:nth-child(even) td { background: #f8fafc; }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .track-stat-wert  { color: #7dd3fc; }
+    .track-stat-label { color: #475569; }
+    .track-karte      { border-color: #334155; }
+    .haupt-karte      { border-color: #334155; }
+    .haupt-tab-nav    { background: #1e293b; }
+    .haupt-tab-btn    { background: #1e3a5f; border-color: #2d5a8e; color: #7db8e8; }
+    .haupt-tab-btn.haupt-tab-aktiv { background: #1a6fc4; border-color: #1a6fc4; color: #fff; }
+    .track-tabelle th { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    .track-tabelle td { border-color: #334155; color: #cbd5e1; }
+    .track-tabelle tbody tr:nth-child(even) td { background: #0f172a; }
+}
+
+/* --- Responsive ------------------------------------------------- */
+
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    .field-row { grid-template-columns: 1fr; }
+    .crew-add-row { flex-wrap: wrap; }
+    .crew-add-row .field,
+    .crew-add-row .field-role { flex: 1 1 120px; }
+}
+
+/* --- Törnabschluss (Screen) ------------------------------------- */
+
+.ab-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.ab-block { flex: 1; min-width: 150px; }
+
+.ab-block-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.ab-liste {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ab-liste li {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+    padding: 3px 0;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.ab-liste li span:first-child { color: #64748b; white-space: nowrap; }
+
+.ab-tabelle-wrap { overflow-x: auto; }
+
+/* Datum-Filter ganz oben im Statistik-Tab */
+.statistik-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+.statistik-filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+.statistik-filter-bar .ab-datum-select {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #94a3b8;
+    background: #fff;
+    color: #1e3a5c;
+}
+
+/* Datum-Filter Zeile über der Ereignistabelle */
+.ab-ereignis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.ab-ereignis-header .ab-block-title { margin: 0; }
+.ab-datum-select {
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    min-width: 160px;
+    cursor: pointer;
+}
+
+.ab-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ab-tabelle th {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.ab-tabelle td {
+    border: 1px solid #e2e8f0;
+    padding: 5px 8px;
+    vertical-align: top;
+    color: #334155;
+}
+
+.ab-tabelle tbody tr:nth-child(even) td { background: #f8fafc; }
+
+.ab-leer {
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 10px;
+}
+
+/* --- Druckbereich (screen: versteckt) --------------------------- */
+
+#druck-bereich         { display: none; }
+#abschluss-druck-bereich { display: none; }
+#logbuch-pdf-bereich   { display: none; padding: 15mm 15mm; box-sizing: border-box; background: #fff; }
+
+/* --- Druck-Styles ----------------------------------------------- */
+
+@media print {
+    body > * { display: none !important; }
+    #druck-bereich           { display: block !important; }
+    #abschluss-druck-bereich { display: block !important; }
+    #logbuch-pdf-bereich     { display: block !important; }
+
+    body {
+        font-family: Georgia, serif;
+        font-size: 11pt;
+        color: #000;
+        background: #fff;
+        padding: 0;
+        margin: 0;
+    }
+
+    #druck-bereich {
+        padding: 20mm 15mm;
+    }
+
+    .dp-header {
+        margin-bottom: 12mm;
+        border-bottom: 2px solid #000;
+        padding-bottom: 4mm;
+    }
+
+    .dp-header h1 {
+        font-size: 18pt;
+        font-weight: bold;
+        margin-bottom: 3mm;
+    }
+
+    .dp-meta {
+        display: flex;
+        gap: 12mm;
+        font-size: 10pt;
+        color: #333;
+    }
+
+    .dp-tabelle {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9pt;
+        margin-bottom: 8mm;
+    }
+
+    .dp-tabelle th {
+        background: #e8e8e8;
+        border: 1px solid #999;
+        padding: 3mm 2mm;
+        text-align: left;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .dp-tabelle td {
+        border: 1px solid #ccc;
+        padding: 2.5mm 2mm;
+        vertical-align: top;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .dp-tabelle tbody tr:nth-child(even) td {
+        background: #f5f5f5;
+    }
+
+    .dp-leer {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 5mm;
+    }
+
+    .dp-fusszeile {
+        font-size: 8pt;
+        color: #666;
+        text-align: right;
+        border-top: 1px solid #ccc;
+        padding-top: 3mm;
+    }
+
+    /* Törnabschluss-Druck */
+    #abschluss-druck-bereich { padding: 15mm 15mm; }
+
+    .adp-header {
+        margin-bottom: 8mm;
+        border-bottom: 2pt solid #000;
+        padding-bottom: 4mm;
+    }
+
+    .adp-header h1 {
+        font-size: 20pt;
+        font-weight: bold;
+        margin-bottom: 3mm;
+    }
+
+    .adp-meta-row {
+        font-size: 10pt;
+        color: #333;
+        margin-bottom: 2mm;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8mm;
+    }
+
+    .adp-zeiten {
+        font-size: 10pt;
+        margin-top: 3mm;
+        padding: 2mm 3mm;
+        background: #f0f0f0;
+        border-radius: 2mm;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6mm;
+    }
+
+    .adp-notizen {
+        font-size: 10pt;
+        margin-top: 3mm;
+        padding: 2mm 3mm;
+        border-left: 2mm solid #ccc;
+        white-space: pre-wrap;
+    }
+
+    .adp-tabelle {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8.5pt;
+        margin-bottom: 8mm;
+    }
+
+    .adp-tabelle th {
+        background: #e0e0e0;
+        border: 1px solid #888;
+        padding: 2.5mm 2mm;
+        text-align: left;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .adp-tabelle td { word-break: break-word; overflow-wrap: break-word;
+        border: 1px solid #bbb;
+        padding: 2mm;
+        vertical-align: top;
+    }
+
+    .adp-tabelle tbody tr:nth-child(even) td { background: #f5f5f5; }
+
+    .adp-fusszeile {
+        font-size: 8pt;
+        color: #666;
+        text-align: right;
+        border-top: 1px solid #ccc;
+        padding-top: 3mm;
+    }
+}
+
+
+/* === Dark Mode ================================================== */
+
+@media (prefers-color-scheme: dark) {
+    body { background: #0f172a; color: #e2e8f0; }
+
+    header { background: linear-gradient(135deg, #12253d 0%, #1e3a5f 100%); }
+
+    .card { background: #1e293b; }
+
+    .tab-nav { background: #1e293b; }
+    .tab-btn { color: #94a3b8; }
+    .tab-btn.tab-aktiv { background: #1e4976; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+
+    input, select, textarea {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    .toern-bar select { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+
+    .btn-secondary  { background: #334155; color: #e2e8f0; }
+    .btn-primary    { background: linear-gradient(135deg, #12253d 0%, #1e4976 100%); }
+    .btn-detail-eintrag { background: #1e293b; color: #64748b; border-color: #334155; }
+    .log-modal-box  { background: #1e293b; }
+    .log-modal-box h2 { color: #e2e8f0; }
+    .btn-abschliessen { background: #92400e; }
+    .btn-export     { background: #334155; color: #e2e8f0; }
+
+    .btn-schnell-card  { background: linear-gradient(145deg, #1e3a5f 0%, #1e4976 100%); color: #7dd3fc; border-color: rgba(14,165,233,0.2); }
+    .btn-schnell-card:active { background: linear-gradient(145deg, #1e4976 0%, #0c2a3f 100%); }
+    .btn-weitere-card  { background: #1e293b; color: #94a3b8; }
+    .btn-weitere-card:active { background: #334155; }
+
+    .schnell-weitere   { background: #1e293b; }
+    .weitere-label     { color: #475569; }
+    .btn-schnell-sm    { background: #334155; color: #cbd5e1; border-color: #475569; }
+    .btn-schnell-sm:active { background: #475569; }
+
+    .event-item        { background: #1e293b; }
+    .event-time-label  { color: #94a3b8; }
+    .event-note-text   { color: #64748b; }
+    .event-pos         { color: #38bdf8; }
+
+    .tu-main    { background: #1e293b; color: #e2e8f0; }
+    .tu-item    { border-color: #334155; }
+
+    .btn-ablegen       { background: #0369a1; }
+    .btn-anker-lichten { background: #b45309; }
+    .btn-von-boje      { background: #4338ca; }
+    .btn-anlegen       { background: #059669; }
+    .btn-ankern        { background: #334155; }
+    .btn-an-boje       { background: #4338ca; }
+    .btn-schnell-card:disabled { background: #1e293b; color: #475569; }
+
+    .btn-zustand { background: #1e293b; color: #94a3b8; }
+    .btn-zustand-aktiv { background: linear-gradient(135deg, #14532d 0%, #16a34a 100%); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(22,163,74,0.3); }
+    .btn-zustand[id="btn-zustand-motor"].btn-zustand-aktiv { background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(232,132,26,0.3); }
+
+    .sidebar { background: #1e293b; }
+    .sidebar-btn { color: #cbd5e1; }
+    .sidebar-btn.sidebar-aktiv { color: #7dd3fc; background: #0c2a3f; border-left-color: #7dd3fc; }
+    .sidebar-acc-header { color: #e2e8f0; }
+    .sidebar-acc-body   { background: rgba(0,0,0,0.2); }
+    .sidebar-acc-btn    { color: #cbd5e1; }
+    .sidebar-acc-divider { background: rgba(255,255,255,0.1); }
+    .logbuch-sticky { background: #1e293b; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    #ls-modus { color: #7dd3fc; }
+    #ls-seit  { color: #fb923c; }
+    .log-lade-status::after { border-color: #334155; border-top-color: #60a5fa; }
+    .log-card-header { border-bottom-color: #334155; }
+    .btn-rudergaenger { color: #94a3b8; border-color: #334155; }
+    .btn-rudergaenger:active { background: #1e293b; color: #e2e8f0; }
+
+    .logbuch-status { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    .letzte-trackpunkte { background: #1e293b; border-color: #334155; color: #64748b; }
+    .ls-sep         { color: #334155; }
+    .ls-ruder-select { color: #64748b; text-decoration-color: #334155; }
+
+    .update-hinweis { background: #2d1a0a; border-color: #c2410c; color: #fdba74; }
+    .update-hinweis button { background: #c2410c; }
+    .backup-banner { background: #2d2a14; border-color: #ca8a04; color: #fde047; }
+
+    .delete-row .btn-danger { background: #7f1d1d; }
+
+    .modal-box { background: #1e293b; }
+    .modal-box h2 { color: #e2e8f0; }
+    .modal-box p  { color: #94a3b8; }
+}
+
+/* --- Validierungs-Toast ----------------------------------------- */
+.validierung-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #c0392b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    animation: fadeInOut 3s ease forwards;
+}
+
+@keyframes fadeInOut {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* --- Filter-Bar (Log + Karte) ----------------------------------- */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 0 6px;
+}
+
+.filter-btn {
+    padding: 5px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 13px;
+    cursor: pointer;
+    color: #475569;
+}
+
+.filter-btn.filter-btn-aktiv {
+    background: #0ea5e9;
+    color: white;
+    border-color: #0ea5e9;
+}
+
+@media (prefers-color-scheme: dark) {
+    .filter-btn { background: #1e293b; border-color: #334155; color: #94a3b8; }
+    .filter-btn.filter-btn-aktiv { background: #0ea5e9; border-color: #0ea5e9; color: white; }
+}
+
+/* --- Karte Aktionen (Track-Bearbeitung) ------------------------- */
+.karte-aktionen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0 4px;
+}
+
+.btn-karte-aktion {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 13px;
+    cursor: pointer;
+    color: #0f172a;
+}
+
+.btn-karte-aktion:active {
+    background: #e2e8f0;
+}
+
+.btn-track-loeschen { color: #dc2626; border-color: #fca5a5; }
+.btn-track-loeschen:active { background: #fee2e2; }
+
+.karte-aktion-status {
+    font-size: 13px;
+    color: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn-karte-aktion { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+    .btn-karte-aktion:active { background: #334155; }
+}
+
+.btn-karte-bearbeiten-aktiv {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+    .btn-karte-bearbeiten-aktiv { background: #dc2626; border-color: #dc2626; color: white; }
+}
+
+/* --- Notiz-Popup ------------------------------------------------- */
+
+.notiz-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1100;
+    padding: 0 0 env(safe-area-inset-bottom, 0);
+}
+
+.notiz-popup-box {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 20px 28px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.notiz-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.notiz-popup-typ-label {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.notiz-countdown {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0ea5e9;
+    min-width: 28px;
+    text-align: right;
+}
+
+.notiz-text {
+    width: 100%;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: none;
+    color: #1e293b;
+    background: #f8fafc;
+    line-height: 1.5;
+}
+
+.notiz-text:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    background: #fff;
+}
+
+.notiz-btn-zeile {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-notiz-aktion {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.btn-notiz-aktion:active { background: #e0f2fe; }
+
+.btn-notiz-speichern {
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.15s;
+    box-shadow: 0 2px 8px rgba(26,58,92,0.25);
+    flex: 1;
+}
+
+.btn-notiz-speichern:active { opacity: 0.8; }
+
+/* Log-Eintrag Notiz-Zeile */
+.event-note-text {
+    display: block;
+    font-size: 13px;
+    color: #475569;
+    font-style: italic;
+    margin-top: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .notiz-popup-box    { background: #1e293b; }
+    .notiz-popup-typ-label { color: #e2e8f0; }
+    .notiz-text         { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+    .notiz-text:focus   { background: #0f172a; border-color: #0ea5e9; }
+    .btn-notiz-aktion      { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+    .btn-notiz-aktion:active { background: #1e3a5f; }
+    .event-note-text    { color: #94a3b8; }
+}
+
+/* ── Sicherheitseinweisung ──────────────────────────────────────── */
+.sicherheit-punkt { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+.sicherheit-punkt label { display:flex; gap:0.75rem; align-items:flex-start; cursor:pointer; font-size:0.95rem; }
+.sicherheit-punkt input[type=checkbox] { margin-top:0.2rem; width:1.2rem; height:1.2rem; flex-shrink:0; }
+.sicherheit-crew-liste { margin-top:0.5rem; }
+.sicherheit-crew-item { padding:0.5rem 0; border-bottom:1px solid var(--border); }
+.sicherheit-crew-item label { display:flex; gap:0.75rem; align-items:center; cursor:pointer; }
+.sicherheit-datum { color: var(--text-secondary); font-size:0.85rem; margin-bottom:0.5rem; }
+
+/* ── Live-Position Tooltip ─────────────────────────────────────── */
+.live-sog-tooltip {
+    background: #0ea5e9;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.live-sog-tooltip::before { display: none; }
+
+
+/* === Sonnenmodus ================================================= */
+
+.btn-sonnenmodus {
+    font-size: 24px;
+    background: none;
+    border: none;
+    padding: 0 8px;
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.sonnenmodus {
+    background: #0d1b2e;
+    color: #ffffff;
+}
+
+body.sonnenmodus header {
+    background: linear-gradient(135deg, #0a1628 0%, #0d2444 100%);
+    border-bottom: 2px solid #1e90ff;
+}
+
+body.sonnenmodus header h1 { color: #ffffff; font-size: 1.3rem; }
+body.sonnenmodus header p  { color: #93c5fd; font-size: 0.95rem; }
+
+body.sonnenmodus .card {
+    background: #132036;
+    border: 1px solid #1e3a5f;
+}
+
+body.sonnenmodus input,
+body.sonnenmodus select,
+body.sonnenmodus textarea {
+    background: #0d1b2e;
+    color: #ffffff;
+    border-color: #1e3a5f;
+}
+
+body.sonnenmodus .tab-nav { background: #132036; }
+body.sonnenmodus .tab-btn { color: #93c5fd; font-size: 1rem; font-weight: 700; }
+body.sonnenmodus .tab-btn.tab-aktiv { background: #1e4976; color: #fff; }
+
+body.sonnenmodus .btn-primary { background: linear-gradient(135deg, #1e4976, #0369a1); color: #fff; }
+body.sonnenmodus .btn-secondary { background: #1e3a5f; color: #e2e8f0; }
+body.sonnenmodus .btn-export { background: #1e3a5f; color: #e2e8f0; }
+
+/* Logbuch-Status-Zeile – große lesbare Werte */
+body.sonnenmodus .logbuch-sticky { background: #0a1628; border-top: 2px solid #1e3a5f; }
+body.sonnenmodus .logbuch-status {
+    background: #132036;
+    border-color: #1e3a5f;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+body.sonnenmodus .letzte-trackpunkte { background: #132036; border-color: #1e3a5f; color: #64748b; }
+body.sonnenmodus #ls-modus { color: #60d4f8; font-size: 1.05rem; }
+body.sonnenmodus #ls-seit  { color: #fbbf24; font-size: 1.05rem; }
+body.sonnenmodus .ls-sep   { color: #1e3a5f; }
+
+/* Schnell-Buttons – größere Schrift, höherer Kontrast */
+body.sonnenmodus .btn-schnell-card {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #2563eb;
+    font-size: 1rem;
+    font-weight: 800;
+    min-height: 60px;
+}
+body.sonnenmodus .btn-schnell-card:disabled { background: #0d1b2e; color: #334155; }
+body.sonnenmodus .btn-schnell-sm {
+    background: #1e3a5f;
+    color: #cbd5e1;
+    border-color: #2563eb;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+body.sonnenmodus .btn-weitere-card { background: #132036; color: #94a3b8; }
+body.sonnenmodus .schnell-weitere  { background: #0d1b2e; }
+body.sonnenmodus .weitere-label    { color: #475569; }
+
+/* Züstand-Buttons (Segeln / Motor) */
+body.sonnenmodus .btn-zustand { background: #132036; color: #93c5fd; border-color: #1e3a5f; font-size: 1rem; font-weight: 800; min-height: 54px; }
+body.sonnenmodus .btn-zustand-aktiv { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; }
+body.sonnenmodus .btn-zustand[id="btn-zustand-motor"].btn-zustand-aktiv { background: linear-gradient(135deg, #7c2d12, #ea580c); color: #fff; }
+
+/* Stopzustand-Buttons (Anlegen / Ankern / An Boje) */
+body.sonnenmodus .btn-anlegen { background: #059669; }
+body.sonnenmodus .btn-ankern  { background: #334155; }
+body.sonnenmodus .btn-an-boje { background: #4338ca; }
+
+/* Log-Einträge */
+body.sonnenmodus .event-item        { background: #132036; }
+body.sonnenmodus .event-time-label  { color: #93c5fd; font-size: 0.95rem; font-weight: 700; }
+body.sonnenmodus .event-note-text   { color: #64748b; }
+
+/* Sidebar */
+body.sonnenmodus .sidebar     { background: #0d1b2e; }
+body.sonnenmodus .sidebar-btn { color: #cbd5e1; font-size: 1rem; font-weight: 700; }
+body.sonnenmodus .sidebar-btn.sidebar-aktiv { color: #60d4f8; background: #0a1628; border-left-color: #60d4f8; }
+body.sonnenmodus .sidebar-acc-header { color: #e2e8f0; }
+body.sonnenmodus .sidebar-acc-body   { background: rgba(0,0,0,0.2); }
+body.sonnenmodus .sidebar-acc-btn    { color: #cbd5e1; }
+body.sonnenmodus .sidebar-acc-divider { background: rgba(255,255,255,0.1); }
+
+/* Bottom Bar */
+body.sonnenmodus .bottom-bar     { background: #0d1b2e; border-top-color: #1e3a5f; }
+body.sonnenmodus .backup-status  { color: #475569; }
+body.sonnenmodus .bottom-bar-autor { color: #475569; }
+
+/* Übersicht / Listen */
+body.sonnenmodus .tu-main { background: #132036; color: #e2e8f0; }
+body.sonnenmodus .tu-item { border-color: #1e3a5f; }
+body.sonnenmodus .toern-bar select { background: #132036; color: #e2e8f0; border-color: #1e3a5f; }
+
+/* --- Export-Dialog ---------------------------------------------- */
+
+.export-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.export-dialog {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 20px;
+    width: min(320px, 90vw);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.export-dialog h3 {
+    margin: 0 0 4px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a3a5c;
+}
+
+/* --- Sidebar Gruppenüberschriften --------------------------------- */
+
+.sidebar-group-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 14px 16px 4px;
+}
+
+/* --- Logbuch Toggle -------------------------------------------- */
+
+.logbuch-toggle-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border, #e2e8f0);
+    background: var(--bg-card, #fff);
+    color: var(--text, #1e293b);
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.logbuch-toggle-btn.aktiv {
+    background: var(--primary, #1a3a5c);
+    color: #fff;
+    border-color: var(--primary, #1a3a5c);
+}
+
+/* --- Sidebar Akkordeon ------------------------------------------- */
+
+.sidebar-acc-header {
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    color: #1a3a5c;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-acc-header:active {
+    background: rgba(0,0,0,0.05);
+}
+
+.sidebar-acc-body {
+    background: #f0f4f8;
+}
+
+.sidebar-acc-btn {
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px 12px 28px;
+    background: none;
+    border: none;
+    color: #2d4a6a;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: block;
+}
+
+.sidebar-acc-btn:active {
+    background: rgba(0,0,0,0.05);
+}
+
+.sidebar-acc-divider {
+    height: 0.5px;
+    background: #e2e8f0;
+    margin: 0 16px;
+}
+
+/* --- Rudergänger Shake ------------------------------------------ */
+
+@keyframes rudergaenger-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+}
+
+.btn-rudergaenger-shake {
+    animation: rudergaenger-shake 0.4s ease-in-out;
+}
+
+/* --- MOB-Overlay ------------------------------------------------ */
+
+.mob-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: #7f1d1d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.mob-overlay-content {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mob-titel {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 1px;
+    animation: mob-puls 1.2s ease-in-out infinite;
+}
+
+@keyframes mob-puls {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.55; }
+}
+
+.mob-info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.mob-label {
+    color: #fca5a5;
+    font-size: 13px;
+    font-weight: 700;
+    align-self: center;
+}
+
+.mob-wert {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.mob-timer-box {
+    text-align: center;
+    color: #fca5a5;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.mob-timer-zahl {
+    color: #fff;
+    font-size: 36px;
+    font-weight: 900;
+    font-family: monospace;
+    display: block;
+    margin-top: 4px;
+}
+
+.mob-geborgen-btn {
+    width: 100%;
+    padding: 18px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(22,163,74,0.5);
+    letter-spacing: 1px;
+}
+
+.mob-geborgen-btn:active { opacity: 0.85; }
+
+.mob-notiz-feld {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 14px;
+    resize: none;
+}
+
+.mob-notiz-feld::placeholder { color: #fca5a5; }
+
+.mob-mayday-details {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #fca5a5;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.mob-mayday-details summary {
+    font-weight: 700;
+    list-style: none;
+    color: #fca5a5;
+}
+
+.mob-mayday-text {
+    margin-top: 10px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.mob-typ-bar {
+    display: flex;
+    gap: 6px;
+}
+
+.mob-typ-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.25);
+    color: #fca5a5;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mob-typ-btn.aktiv {
+    background: rgba(255,255,255,0.22);
+    border-color: #fff;
+    color: #fff;
+}
+
+/* --- Druck-PDF (screen-Styles für html2canvas / PDF-Export) ----- */
+
+#druck-bereich { font-family: Georgia, serif; font-size: 13pt; color: #000; background: #fff; padding: 20mm 15mm; }
+.dp-header { margin-bottom: 12mm; border-bottom: 2px solid #000; padding-bottom: 4mm; }
+.dp-header h1 { font-size: 22pt; font-weight: bold; margin-bottom: 3mm; }
+.dp-meta { display: flex; gap: 12mm; font-size: 12pt; color: #333; flex-wrap: wrap; }
+.dp-tabelle { width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 8mm; }
+.dp-tabelle th { background: #e8e8e8; border: 1px solid #999; padding: 3mm 2.5mm; text-align: left; font-weight: bold; white-space: nowrap; }
+.dp-tabelle td { border: 1px solid #ccc; padding: 3mm 2.5mm; vertical-align: top; word-break: break-word; overflow-wrap: break-word; }
+.dp-tabelle tbody tr:nth-child(even) td { background: #f5f5f5; }
+.dp-leer { text-align: center; color: #666; font-style: italic; padding: 5mm; }
+.dp-fusszeile { font-size: 10pt; color: #666; text-align: right; border-top: 1px solid #ccc; padding-top: 3mm; margin-top: 6mm; }
+.dp-info-grid { display: flex; gap: 8mm; margin-bottom: 6mm; flex-wrap: wrap; }
+.dp-info-block { flex: 1; min-width: 50mm; }
+.dp-info-titel { font-weight: bold; font-size: 11pt; border-bottom: 1px solid #ccc; margin-bottom: 2mm; padding-bottom: 1mm; }
+.dp-info-tabelle { width: 100%; border-collapse: collapse; font-size: 11pt; }
+.dp-info-tabelle th { background: #e8e8e8; border: 1px solid #ccc; padding: 2mm 2.5mm; text-align: left; }
+.dp-info-tabelle td { border: 1px solid #eee; padding: 2mm 2.5mm; vertical-align: top; }
+.dp-info-tabelle td:first-child { color: #555; width: 30%; white-space: nowrap; }
+.dp-notizen { font-size: 11pt; border-left: 3px solid #ccc; padding-left: 3mm; margin-bottom: 5mm; color: #333; }
+
+/* --- PDF-Seitenumbruch-Spacer ---------------------------------- */
+.lpdf-neue-seite { display: block; height: 297mm; background: white; }
+.dp-neue-seite   { display: block; height: 297mm; background: white; }
+/* --- Logbuch-PDF ------------------------------------------------ */
+
+.lpdf-doc { font-family: Arial, sans-serif; font-size: 14pt; color: #000; line-height: 1.45; }
+
+/* Deckblatt */
+.lpdf-deckblatt { padding-bottom: 8mm; }
+.lpdf-titel { font-size: 30pt; font-weight: 900; text-align: center; letter-spacing: 3px; color: #1a3a5c; margin-bottom: 3mm; }
+.lpdf-titel-linie { height: 3px; background: #1a3a5c; border-radius: 2px; margin-bottom: 8mm; }
+.lpdf-deck-grid { display: flex; gap: 10mm; margin-bottom: 5mm; align-items: flex-start; }
+.lpdf-deck-col { flex: 1; min-width: 0; }
+.lpdf-deck-heading { font-size: 13pt; font-weight: 700; color: #1a3a5c; border-bottom: 1.5px solid #1a3a5c; margin-bottom: 2mm; padding-bottom: 1.5mm; margin-top: 5mm; }
+.lpdf-deck-heading:first-child { margin-top: 0; }
+
+.lpdf-section-titel { font-size: 15pt; font-weight: 700; margin: 5mm 0 3mm; border-bottom: 1px solid #000; }
+
+.lpdf-meta { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+.lpdf-meta td { padding: 2mm 2.5mm; vertical-align: top; word-break: break-word; overflow-wrap: break-word; font-size: 12pt; line-height: 1.45; }
+.lpdf-meta td:first-child { width: 32mm; color: #555; white-space: nowrap; }
+
+.lpdf-crew, .lpdf-stat { width: 100%; border-collapse: collapse; margin-bottom: 5mm; font-size: 12pt; }
+.lpdf-crew th, .lpdf-stat th { background: #1a3a5c; color: #fff; padding: 2.5mm 3mm; text-align: left; border: 0.5pt solid #1a3a5c; font-weight: 600; font-size: 12pt; }
+.lpdf-crew td, .lpdf-stat td { padding: 2.5mm 3mm; border: 0.5pt solid #ccc; word-break: break-word; overflow-wrap: break-word; }
+.lpdf-crew tbody tr:nth-child(even) td, .lpdf-stat tbody tr:nth-child(even) td { background: #f4f7fa; }
+
+.lpdf-notizen { font-size: 12pt; color: #333; border-left: 3mm solid #ccc; padding-left: 4mm; margin-top: 4mm; }
+
+.lpdf-tabelle { width: 100%; border-collapse: collapse; font-size: 11pt; }
+.lpdf-tabelle th { background: #e8e8e8; padding: 2.5mm 3mm; border: 0.5pt solid #ccc; text-align: left; font-size: 11pt; }
+.lpdf-tabelle td { padding: 2.5mm 3mm; border: 0.5pt solid #ccc; vertical-align: top; word-break: break-word; overflow-wrap: break-word; }
+.lpdf-tabelle tr:nth-child(even) { background: #f9f9f9; }
+
+.lpdf-storniert { display: inline-block; background: #f97316; color: #fff; font-size: 8pt; font-weight: 700; padding: 0 2mm; border-radius: 2px; margin-left: 2mm; vertical-align: middle; }
+
+.lpdf-karte-seite { margin-top: 6mm; }
+.lpdf-signatur { display: flex; gap: 20mm; margin-top: 8mm; }
+.lpdf-signatur-block { flex: 1; font-size: 12pt; }
+.lpdf-signatur-linie { font-size: 11pt; color: #555; border-top: 1px solid #000; padding-top: 1mm; margin-top: 1mm; }
+.lpdf-unterschrift-row td { background: #f9f9f9; border-top: 1pt solid #e0e0e0; }
+
+@media print {
+    .lpdf-doc { margin: 0; padding: 0; }
+    .lpdf-journal { page-break-before: always; }
+    .lpdf-karte-seite { page-break-before: always; }
+    #lpdf-karte { height: 450px !important; page-break-inside: avoid; isolation: isolate; }
+    .lpdf-tabelle { page-break-inside: auto; }
+    .lpdf-tabelle tr { page-break-inside: avoid; }
+}
+
+/* ── Datenvalidierung Overlay ─────────────────────────────────── */
+.btn-export-check { background: #1a3a5c; color: #fff; }
+#val-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 9998; display: flex; align-items: flex-start;
+    justify-content: center; padding: 20px; overflow-y: auto;
+}
+.val-modal {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.3); overflow: hidden;
+}
+.val-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px; background: #1a3a5c; color: #fff;
+}
+.val-header h2 { margin: 0; font-size: 15px; }
+.val-close {
+    background: none; border: none; color: #fff; font-size: 18px;
+    cursor: pointer; padding: 0 4px; line-height: 1;
+}
+.val-summary {
+    padding: 10px 18px; font-size: 13px; font-weight: 700;
+    border-bottom: 1px solid #e2e8f0;
+}
+.val-has-errors { background: #fee2e2; color: #991b1b; }
+.val-has-warns  { background: #fef3c7; color: #92400e; }
+.val-clean      { background: #dcfce7; color: #166534; }
+.val-liste {
+    list-style: none; margin: 0; padding: 12px 16px;
+    max-height: 60vh; overflow-y: auto; display: flex;
+    flex-direction: column; gap: 8px;
+}
+.val-liste li {
+    font-size: 13px; padding: 8px 12px; border-radius: 8px;
+    line-height: 1.4;
+}
+.val-ok      { background: #f0fdf4; color: #166534; }
+.val-error   { background: #fee2e2; color: #7f1d1d; }
+.val-warn    { background: #fffbeb; color: #78350f; }
+.val-id { font-size: 10px; opacity: .6; font-family: monospace; }
