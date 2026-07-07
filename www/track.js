@@ -231,7 +231,8 @@ function trackStarten() {
                 _letzteTrackPos = {
                     lat: parseFloat(location.latitude.toFixed(5)),
                     lon: parseFloat(location.longitude.toFixed(5)),
-                    sog: location.speed != null ? parseFloat((location.speed * 1.94384).toFixed(1)) : null
+                    sog: location.speed != null ? parseFloat((location.speed * 1.94384).toFixed(1)) : null,
+                    ts:  Date.now()
                 };
                 _trackWatchCallback(_pluginLocationToPos(location));
             }

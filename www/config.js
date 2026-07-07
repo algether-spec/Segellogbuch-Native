@@ -3,7 +3,7 @@
    App-Version und Auto-Update-Logik
 ====================== */
 
-const APP_VERSION = "2.5.176-dev";
+const APP_VERSION = "2.5.177-dev";
 let _updateIntervalId = null;
 
 function updateButtonInit() {

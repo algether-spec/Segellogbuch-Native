@@ -2048,13 +2048,14 @@ function gpsAbfragen(ev) {
             zeigeLogs();
         },
         error => {
-            /* Fallback: letzte bekannte BackgroundGeolocation-Position verwenden */
-            if (typeof _letzteTrackPos !== "undefined" && _letzteTrackPos) {
-                ev.pos = { ..._letzteTrackPos };
+            /* Fallback: letzte BackgroundGeolocation-Position, max. 90s alt */
+            if (_letzteTrackPos && (Date.now() - _letzteTrackPos.ts) < 90000) {
+                ev.pos = { lat: _letzteTrackPos.lat, lon: _letzteTrackPos.lon, sog: _letzteTrackPos.sog };
                 toernSpeichern(aktuellerToern);
                 zeigeLogs();
                 return;
             }
+            /* pos bleibt null — ursprüngliches Verhalten */
             if (typeof statusSetzen === "function") {
                 const msg = error && error.code != null
                     ? (error.code === 1 ? "GPS-Berechtigung verweigert." :
