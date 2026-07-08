@@ -1379,10 +1379,30 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
             ? `${t.endDate}T${t.endTime}:00`
             : null;
 
+        /* Abschnittsliste: initialer Skipper + alle Schiffsführerwechsel */
+        const alleAbschnitte = [];
+        if (t.skipper) {
+            alleAbschnitte.push({
+                name:         t.skipper,
+                vonIso:       (t.startDate && t.startTime) ? `${t.startDate}T${t.startTime}:00` : null,
+                bisIso:       sfEvs.length > 0 ? evZeitIso(sfEvs[0]) : toernBisIso,
+                unterschrift: null
+            });
+        }
+        for (let i = 0; i < sfEvs.length; i++) {
+            const sf = sfEvs[i];
+            alleAbschnitte.push({
+                name:         sf.rudergaenger?.name || '—',
+                vonIso:       evZeitIso(sf),
+                bisIso:       i < sfEvs.length - 1 ? evZeitIso(sfEvs[i + 1]) : toernBisIso,
+                unterschrift: sf.unterschrift || null
+            });
+        }
+
         y = heading('Unterschriften', y);
         y += 8;
 
-        if (sfEvs.length === 0) {
+        if (alleAbschnitte.length === 0) {
             /* Kein Schiffsführerwechsel – unverändertes Original-Layout */
             const sigLX = M, sigRX = M + CW / 2 + 5;
             let sigY = y;
@@ -1417,12 +1437,10 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
             };
             y = _sfHeader(y);
 
-            for (let i = 0; i < sfEvs.length; i++) {
-                const sf     = sfEvs[i];
-                const vonIso = evZeitIso(sf);
-                const bisIso = i < sfEvs.length - 1 ? evZeitIso(sfEvs[i + 1]) : toernBisIso;
-                const vonTxt = vonIso ? `${fmt(vonIso)} ${fmtZ(vonIso)}` : '—';
-                const bisTxt = bisIso ? `${fmt(bisIso)} ${fmtZ(bisIso)}` : 'laufend';
+            for (let i = 0; i < alleAbschnitte.length; i++) {
+                const ab     = alleAbschnitte[i];
+                const vonTxt = ab.vonIso ? `${fmt(ab.vonIso)} ${fmtZ(ab.vonIso)}` : '—';
+                const bisTxt = ab.bisIso ? `${fmt(ab.bisIso)} ${fmtZ(ab.bisIso)}` : 'laufend';
                 const rowH   = 22;
 
                 if (y + rowH > PH - M) { pdf.addPage(); y = M; y = _sfHeader(y); }
@@ -1433,13 +1451,13 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
                 pdf.rect(M, y, CW, rowH, 'S');
 
                 pdf.setFont('helvetica', 'bold');   pdf.setFontSize(9); pdf.setTextColor(26, 58, 92);
-                pdf.text(sf.rudergaenger?.name || '—', M + 2, y + 7);
+                pdf.text(ab.name, M + 2, y + 7);
                 pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(50, 50, 50);
                 pdf.text(vonTxt, M + 54, y + 7);
                 pdf.text(bisTxt, M + 92, y + 7);
 
-                if (sf.unterschrift) {
-                    pdf.addImage(sf.unterschrift, 'PNG', M + 130, y + 2, 46, 16);
+                if (ab.unterschrift) {
+                    pdf.addImage(ab.unterschrift, 'PNG', M + 130, y + 2, 46, 16);
                 } else {
                     pdf.setDrawColor(150, 150, 150); pdf.setLineWidth(0.3);
                     pdf.line(M + 130, y + 14, M + 178, y + 14);
