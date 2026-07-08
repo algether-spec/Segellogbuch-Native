@@ -1647,7 +1647,7 @@ function hauptTabWechseln(tabId) {
 }
 
 function seitenWechseln(seiteId) {
-    const seitenPanels = ["tab-toern", "tab-toernuebersicht", "tab-crew", "tab-sicherheit", "tab-kontrolle", "tab-statistik", "tab-trackliste", "tab-einstellungen"];
+    const seitenPanels = ["tab-toern", "tab-toernuebersicht", "tab-sicherheit", "tab-kontrolle", "tab-statistik", "tab-trackliste", "tab-einstellungen"];
     const hauptBereich = document.getElementById("haupt-bereich");
 
     _aktiveSeitenId = seiteId || null;
@@ -1703,7 +1703,7 @@ function tabWechseln(tabId) { seitenWechseln(tabId); }
 
 function tabInhaltToggeln() {
     const aktiv = !!aktuellerToern;
-    ["crew", "logbuch", "log", "karte", "statistik", "trackliste"].forEach(t => {
+    ["logbuch", "log", "karte", "statistik", "trackliste"].forEach(t => {
         const leer   = document.getElementById("tab-" + t + "-leer");
         const inhalt = document.getElementById("tab-" + t + "-inhalt");
         if (leer)   leer.hidden   = aktiv;
@@ -2236,7 +2236,7 @@ btnToernLoeschen.hidden = true;
 statusMsg.hidden = true;
 
 /* Hauptbereich anzeigen, Sidebar-Panels verstecken */
-["tab-toern", "tab-crew", "tab-statistik", "tab-einstellungen"].forEach(id => {
+["tab-toern", "tab-statistik", "tab-einstellungen"].forEach(id => {
     const p = document.getElementById(id);
     if (p) p.classList.add("tab-hidden");
 });
