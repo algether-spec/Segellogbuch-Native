@@ -422,6 +422,33 @@ function _motorsegelnBeobachten() {
     if (btnM) obs.observe(btnM, { attributes: true, attributeFilter: ["class"] });
 }
 
+function reffZustandErmitteln() {
+    if (!aktuellerToern || !(aktuellerToern.events || []).length) return null;
+    const REFF_TYPEN = new Set(["Reffen 1", "Reffen 2", "Reffen", "Ausreffen"]);
+    const sorted = aktuellerToern.events.slice().sort((a, b) =>
+        evZeitIso(a) < evZeitIso(b) ? -1 : 1
+    );
+    for (let i = sorted.length - 1; i >= 0; i--) {
+        if (sorted[i].storniert) continue;
+        const typ = sorted[i].type;
+        if (STOPP_EREIGNISSE?.[typ]) return null; /* Ankern/Anlegen/An Boje = Reff-Zustand zurückgesetzt */
+        if (!REFF_TYPEN.has(typ)) continue;
+        if (typ === "Ausreffen") return null;
+        return { reffTyp: typ, event: sorted[i] };
+    }
+    return null;
+}
+
+function reffButtonsAktualisieren() {
+    const result = reffZustandErmitteln();
+    const btnReffen = document.getElementById("btn-reffen");
+    if (btnReffen) btnReffen.classList.toggle("btn-reffen-aktiv", !!result);
+
+    document.querySelectorAll("#reffen-auswahl button[data-reff-typ]").forEach(btn => {
+        btn.classList.toggle("btn-reffen-submenu-aktiv", result?.reffTyp === btn.dataset.reffTyp);
+    });
+}
+
 function reffenAuswaehlen() {
     const div = document.getElementById("reffen-auswahl");
     if (div) div.hidden = !div.hidden;
@@ -915,6 +942,7 @@ function zeigeLogs() {
     logbuchStatusAktualisieren();
     logVorschauAktualisieren();
     letzteTrackPunkteZeigen();
+    reffButtonsAktualisieren();
     requestAnimationFrame(() => { window.scrollTo(0, _scrollY); logScrollHoeheAnpassen(); });
 }
 
