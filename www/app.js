@@ -250,13 +250,14 @@ const ERLAUBTE_ZUSTAENDE = {
     "Reffen":        ["fahrt"],
     "Reffen 1":      ["fahrt"],
     "Reffen 2":      ["fahrt"],
+    "Ausreffen":     ["fahrt"],
     /* Motor an, Segeln, Ruderwechsel: kein Eintrag → immer erlaubt (LOGIK.md: "immer sichtbar") */
 };
 
 
 /* Kategorie-Mapping */
 const KATEGORIE_MAP = {
-    "Wende": "Segeln", "Halse": "Segeln", "Reffen": "Segeln", "Reffen 1": "Segeln", "Reffen 2": "Segeln",
+    "Wende": "Segeln", "Halse": "Segeln", "Reffen": "Segeln", "Reffen 1": "Segeln", "Reffen 2": "Segeln", "Ausreffen": "Segeln",
     "Segel setzen": "Segeln", "Segel bergen": "Segeln",
     "Aufschießer": "Segeln", "Beidrehen": "Segeln", "Segeln": "Segeln",
     "Ablegen": "Motor", "Anlegen": "Motor", "Motor an": "Motor", "Motor aus": "Motor", "Motorsegeln": "Motor",
@@ -1416,7 +1417,7 @@ function eventErlaubt(typ, zustand) {
 
 
 function antriebKonsistenzPruefen(typ, antrieb) {
-    if (["Wende", "Halse", "Reffen", "Reffen 1", "Reffen 2"].includes(typ) && antrieb !== "segeln" && antrieb !== "motorsegeln") {
+    if (["Wende", "Halse", "Reffen", "Reffen 1", "Reffen 2", "Ausreffen"].includes(typ) && antrieb !== "segeln" && antrieb !== "motorsegeln") {
         return `⚠️ „${typ}" nur bei aktivem Segeln möglich`;
     }
     return null;
