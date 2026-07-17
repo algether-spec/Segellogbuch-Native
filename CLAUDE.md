@@ -281,6 +281,7 @@ Fixes #issue-id (if applicable)
 | Datei | Ort | Beispiel |
 |-------|-----|---------|
 | `www/config.js` | Zeile 5 | `const APP_VERSION = "2.5.152";` |
+| `www/version.json` | Zeile 1 | `{ "version": "2.5.152" }` |
 | `android/app/build.gradle` | `versionCode` & `versionName` | `versionCode 2515`, `versionName "2.5.152"` |
 | `package.json` | `version` | `"version": "2.5.152"` |
 | `CLAUDE.md` | Footer | `**Version:** 2.5.152` |
