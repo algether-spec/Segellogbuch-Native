@@ -423,12 +423,13 @@ function motorUndSegelMinuten(events, opts = {}) {
     };
 }
 
-function minutenAusPaaren(events, startTyp, endTyp) {
+function minutenAusPaaren(events, startTyp, endTyp, opts = {}) {
+    const { bisTs = null, anfangsOffen = false, anfangsTs = null } = opts;
     const relevant = events
         .filter(e => e.type === startTyp || e.type === endTyp)
         .filter(e => evTimestamp(e) !== null)
         .sort((a, b) => evTimestamp(a) - evTimestamp(b));
-    let minuten = 0, startTs = null;
+    let minuten = 0, startTs = anfangsOffen ? anfangsTs : null;
     for (const ev of relevant) {
         if (ev.type === startTyp && startTs === null) {
             startTs = evTimestamp(ev);
@@ -437,6 +438,11 @@ function minutenAusPaaren(events, startTyp, endTyp) {
             if (ts > startTs) minuten += (ts - startTs) / 60000;
             startTs = null;
         }
+    }
+    /* Offenes Start-Event am Ende (z.B. "Anlegen" ohne folgendes "Ablegen")
+       bis bisTs abschliessen statt zu verwerfen – Normalfall bei Törnende. */
+    if (startTs !== null && bisTs != null && bisTs > startTs) {
+        minuten += (bisTs - startTs) / 60000;
     }
     return Math.round(minuten);
 }
@@ -507,9 +513,9 @@ function toernStatistikBerechnen(toern, opts = {}) {
         unterSegel:   segelMin,
         mitMotor:     motorMin,
         mitMotorsegel: motsegelMin,
-        anker:        minutenAusPaaren(events, "Ankern",  "Anker lichten"),
-        hafen:        minutenAusPaaren(events, "Anlegen", "Ablegen"),
-        anBoje:       minutenAusPaaren(events, "An Boje", "Von Boje"),
+        anker:        minutenAusPaaren(events, "Ankern",  "Anker lichten", { bisTs, anfangsOffen: opts.ankerOffenVorTag,  anfangsTs: opts.anfangsTs }),
+        hafen:        minutenAusPaaren(events, "Anlegen", "Ablegen",       { bisTs, anfangsOffen: opts.hafenOffenVorTag,  anfangsTs: opts.anfangsTs }),
+        anBoje:       minutenAusPaaren(events, "An Boje", "Von Boje",      { bisTs, anfangsOffen: opts.anBojeOffenVorTag, anfangsTs: opts.anfangsTs }),
         nmRuder:      nmProRudergaenger(toern),
         nmGesamt
     };
@@ -692,6 +698,22 @@ function _antriebZustandVorTag(toern, datumFilter) {
     return "motorsegel";
 }
 
+/* Analog zu _antriebZustandVorTag: ist eine Start/End-Paarung (Ankern/Anker lichten,
+   Anlegen/Ablegen, An Boje/Von Boje) zu Beginn von datumFilter bereits "offen",
+   weil das Start-Event an einem Vortag lag? */
+function _paarZustandVorTag(toern, datumFilter, startTyp, endTyp) {
+    const grenzeTs = new Date(datumFilter + "T00:00:00").getTime();
+    const vorher = (toern.events || [])
+        .filter(e => (e.type === startTyp || e.type === endTyp) && evTimestamp(e) !== null && evTimestamp(e) < grenzeTs)
+        .sort((a, b) => evTimestamp(a) - evTimestamp(b));
+    let offen = false;
+    for (const ev of vorher) {
+        if (ev.type === startTyp) offen = true;
+        else if (ev.type === endTyp) offen = false;
+    }
+    return offen;
+}
+
 function _statistikMitFilter(toern, datumFilter) {
     if (datumFilter === "alle") {
         toernStatistikRendern(toernStatistikBerechnen(toern));
@@ -709,9 +731,12 @@ function _statistikMitFilter(toern, datumFilter) {
         })
     });
     const opts = {
-        bisTs:          new Date(datumFilter + "T23:59:59").getTime(),
-        anfangsZustand: _antriebZustandVorTag(toern, datumFilter),
-        anfangsTs:      new Date(datumFilter + "T00:00:00").getTime()
+        bisTs:             new Date(datumFilter + "T23:59:59").getTime(),
+        anfangsZustand:    _antriebZustandVorTag(toern, datumFilter),
+        anfangsTs:         new Date(datumFilter + "T00:00:00").getTime(),
+        ankerOffenVorTag:  _paarZustandVorTag(toern, datumFilter, "Ankern",  "Anker lichten"),
+        hafenOffenVorTag:  _paarZustandVorTag(toern, datumFilter, "Anlegen", "Ablegen"),
+        anBojeOffenVorTag: _paarZustandVorTag(toern, datumFilter, "An Boje", "Von Boje")
     };
     toernStatistikRendern(toernStatistikBerechnen(gefilterteToern, opts));
     toernAbschlussRendern(toernAbschlussBerechnen(gefilterteToern, opts));
@@ -1323,9 +1348,12 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
                 const tagsPts  = allePts.filter(p => p.zeit && p.zeit.slice(0, 10) === datum)
                                         .sort((a, b) => a.zeit < b.zeit ? -1 : 1);
                 const tagOpts  = {
-                    bisTs:          new Date(datum + "T23:59:59").getTime(),
-                    anfangsZustand: _antriebZustandVorTag(t, datum),
-                    anfangsTs:      new Date(datum + "T00:00:00").getTime()
+                    bisTs:             new Date(datum + "T23:59:59").getTime(),
+                    anfangsZustand:    _antriebZustandVorTag(t, datum),
+                    anfangsTs:         new Date(datum + "T00:00:00").getTime(),
+                    ankerOffenVorTag:  _paarZustandVorTag(t, datum, "Ankern",  "Anker lichten"),
+                    hafenOffenVorTag:  _paarZustandVorTag(t, datum, "Anlegen", "Ablegen"),
+                    anBojeOffenVorTag: _paarZustandVorTag(t, datum, "An Boje", "Von Boje")
                 };
                 const tagStat  = toernStatistikBerechnen({ events: tagesEvs, track: { points: tagsPts } }, tagOpts);
                 const tagNm    = tagsPts.length > 1 && typeof trackDistanzNm === 'function'
