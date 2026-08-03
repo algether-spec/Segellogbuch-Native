@@ -495,4 +495,4 @@ Test: adb install -r ✅
 
 **Zuletzt aktualisiert:** 3. August 2026  
 **Für Claude/GitHub-Copilot optimiert**  
-**Version:** 2.5.182
+**Version:** 2.5.183

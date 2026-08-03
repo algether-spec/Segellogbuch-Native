@@ -1403,6 +1403,37 @@ async function trackCsvExportieren() {
     downloadBlob(blob, filename);
 }
 
+function xmlFeldEscapen(wert) {
+    return String(wert ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+async function trackGpxExportieren() {
+    if (!aktuellerToern) return;
+    const pts = (aktuellerToern.track?.points || []).slice().sort((a, b) => a.zeit < b.zeit ? -1 : 1);
+    if (!pts.length) { statusSetzen("Keine Track-Punkte vorhanden.", "error", 3000); return; }
+    const trackName = xmlFeldEscapen(aktuellerToern.tripName || "Törn");
+    const trkpts = pts.map(p => {
+        const speed = p.sog != null ? `\n        <speed>${(p.sog / 1.94384).toFixed(2)}</speed>` : "";
+        return `      <trkpt lat="${p.lat}" lon="${p.lon}">\n        <time>${p.zeit}Z</time>${speed}\n      </trkpt>`;
+    });
+    const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Segellogbuch" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata><name>${trackName}</name></metadata>\n  <trk>\n    <name>${trackName}</name>\n    <trkseg>\n${trkpts.join("\n")}\n    </trkseg>\n  </trk>\n</gpx>\n`;
+
+    const datum = new Date().toISOString().slice(0, 10);
+    const name  = (aktuellerToern.tripName || "Toern").replace(/[^a-zA-Z0-9äöüÄÖÜß_-]/g, "_");
+    const filename = "track_" + name + "_" + datum + ".gpx";
+
+    if (await saveFileNative(filename, gpx)) {
+        await _shareFileNative(filename);
+        statusSetzen("Track GPX gespeichert und Teilen gestartet.", "ok", 5000);
+        return;
+    }
+
+    const blob = new Blob([gpx], { type: "application/gpx+xml;charset=utf-8;" });
+    downloadBlob(blob, filename);
+}
+
 
 /* --- Schnellbuttons --------------------------------------------- */
 
@@ -1834,10 +1865,12 @@ if (_btnAbs) _btnAbs.onclick = toernAbschliessenAktion;
 const _btnCsv       = document.getElementById("btn-csv-export");
 const _btnJson      = document.getElementById("btn-json-export");
 const _btnTrackCsv  = document.getElementById("btn-track-csv-export");
+const _btnTrackGpx  = document.getElementById("btn-track-gpx-export");
 const _btnDrucken   = document.getElementById("btn-drucken");
 if (_btnCsv)      _btnCsv.onclick      = () => exportMitFeedback(_btnCsv,      csvExportieren);
 if (_btnJson)     _btnJson.onclick     = () => exportMitFeedback(_btnJson,     exportJSON);
 if (_btnTrackCsv) _btnTrackCsv.onclick = () => exportMitFeedback(_btnTrackCsv, trackCsvExportieren);
+if (_btnTrackGpx) _btnTrackGpx.onclick = () => exportMitFeedback(_btnTrackGpx, trackGpxExportieren);
 if (_btnDrucken)  _btnDrucken.onclick  = () => exportMitFeedback(_btnDrucken,  druckenVorbereiten);
 document.getElementById("btn-abschluss-druck").onclick  = abschlussdrucken;
 const _btnKurz = document.getElementById("btn-kurzdruck");
