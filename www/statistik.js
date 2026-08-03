@@ -358,12 +358,14 @@ function evTimestamp(ev) {
 }
 
 /* Event-Typ-Gruppen der Antriebs-Zustandsmaschine – auch von _antriebZustandVorTag()
-   (Tages-Filter-Carry-Over) wiederverwendet. */
+   (Tages-Filter-Carry-Over) wiederverwendet.
+   "Anker lichten"/"Von Boje" (wie "Ablegen") sind Ablege-Events, keine Stopps – sie dürfen
+   den Antriebs-Zustand nicht zurücksetzen, sonst geht die Zeit bis zum nächsten Event
+   (oft erst beim tatsächlichen Segelsetzen) verloren. */
 const ANTRIEB_MOTOR_TYPEN     = new Set(["Motor an"]);
 const ANTRIEB_SEGEL_TYPEN     = new Set(["Segeln"]);
 const ANTRIEB_MOTORSEGEL_TYPEN = new Set(["Motorsegeln"]);
-const ANTRIEB_STOPP_TYPEN     = new Set(["Motor aus", "Ankern", "An Boje", "Anlegen",
-                                          "Anker lichten", "Von Boje"]);
+const ANTRIEB_STOPP_TYPEN     = new Set(["Motor aus", "Ankern", "An Boje", "Anlegen"]);
 
 function motorUndSegelMinuten(events, opts = {}) {
     /* Zustandsmaschine: jeder Zustandswechsel akkumuliert die Zeit im vorherigen Zustand.
@@ -374,8 +376,8 @@ function motorUndSegelMinuten(events, opts = {}) {
        Motor:        "Motor an"
        Segel:        "Segeln"
        Motorsegeln:  "Motorsegeln"  (eigene Kategorie)
-       Stopp:        "Motor aus", "Ankern", "An Boje", "Anlegen",
-                     "Anker lichten", "Von Boje" */
+       Stopp:        "Motor aus", "Ankern", "An Boje", "Anlegen"
+                     ("Ablegen"/"Anker lichten"/"Von Boje" sind Ablege-Events, keine Stopps) */
     const { bisTs = Date.now(), anfangsZustand = null, anfangsTs = null } = opts;
 
     const sorted = events
@@ -507,6 +509,7 @@ function toernStatistikBerechnen(toern, opts = {}) {
         mitMotorsegel: motsegelMin,
         anker:        minutenAusPaaren(events, "Ankern",  "Anker lichten"),
         hafen:        minutenAusPaaren(events, "Anlegen", "Ablegen"),
+        anBoje:       minutenAusPaaren(events, "An Boje", "Von Boje"),
         nmRuder:      nmProRudergaenger(toern),
         nmGesamt
     };
@@ -535,7 +538,8 @@ function toernStatistikRendern(stat) {
         { label: "Motorsegeln",   wert: stat.mitMotorsegel },
         { label: "Mit Motor",    wert: stat.mitMotor    },
         { label: "Vor Anker",    wert: stat.anker       },
-        { label: "Im Hafen",     wert: stat.hafen       }
+        { label: "Im Hafen",     wert: stat.hafen       },
+        { label: "An Boje",      wert: stat.anBoje      }
     ].filter(z => z.wert > 0);
 
     const zeitZeilen = zeiten.length
@@ -760,7 +764,8 @@ function toernAbschlussRendern(ab) {
         ["Motorsegeln",  ab.stat.mitMotorsegel],
         ["Mit Motor",   ab.stat.mitMotor],
         ["Im Hafen",    ab.stat.hafen],
-        ["Vor Anker",   ab.stat.anker]
+        ["Vor Anker",   ab.stat.anker],
+        ["An Boje",     ab.stat.anBoje]
     ].filter(([, m]) => m > 0)
      .map(([l, m]) => `<li><span>${l}</span><span>${zeitFormatieren(m)}</span></li>`)
      .join("");
@@ -822,7 +827,8 @@ function abschlussdrucken() {
         ["Motorsegeln",  ab.stat.mitMotorsegel],
         ["Mit Motor",   ab.stat.mitMotor],
         ["Im Hafen",    ab.stat.hafen],
-        ["Vor Anker",   ab.stat.anker]
+        ["Vor Anker",   ab.stat.anker],
+        ["An Boje",     ab.stat.anBoje]
     ].filter(([, m]) => m > 0)
      .map(([l, m]) => `<span>${l}: <strong>${zeitFormatieren(m)}</strong></span>`)
      .join("&nbsp;&nbsp;·&nbsp;&nbsp;");
@@ -1205,7 +1211,8 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
             ['Motorsegeln',  stat.mitMotorsegel],
             ['Mit Motor',   stat.mitMotor],
             ['Im Hafen',    stat.hafen],
-            ['Vor Anker',   stat.anker]
+            ['Vor Anker',   stat.anker],
+            ['An Boje',     stat.anBoje]
         ].filter(([, m]) => m > 0).map(([l, m]) => [l, zeitFormatieren(m)]);
         statRows.push(['Seemeilen gesamt', nmGesamt + ' nm']);
 
