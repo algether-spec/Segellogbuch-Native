@@ -1212,7 +1212,8 @@ async function druckenVorbereiten() {
         ["Motorsegeln",  stat.mitMotorsegel],
         ["Mit Motor",   stat.mitMotor],
         ["Im Hafen",    stat.hafen],
-        ["Vor Anker",   stat.anker]
+        ["Vor Anker",   stat.anker],
+        ["An Boje",     stat.anBoje]
     ].filter(([, m]) => m > 0)
      .map(([l, m]) => `<tr><td>${l}</td><td>${fmt(m)}</td></tr>`).join("") : "";
 
