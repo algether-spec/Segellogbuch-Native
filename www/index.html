@@ -42,7 +42,6 @@
             <div id="acc-toern" class="sidebar-acc-body">
                 <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-toern')">📋 Törn</button>
                 <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-toernuebersicht')">🗂 Alle Törns</button>
-                <button type="button" class="sidebar-acc-btn" onclick="seitenWechseln('tab-crew')">👥 Crew</button>
             </div>
 
             <div class="sidebar-acc-divider"></div>
@@ -162,6 +161,22 @@
             </div>
 
             <div class="card">
+                <h2>👥 Crew</h2>
+                <div class="crew-add-row">
+                    <div class="field">
+                        <label for="crew-input">Name</label>
+                        <input type="text" id="crew-input" placeholder="Crew-Mitglied">
+                    </div>
+                    <div class="field field-role">
+                        <label for="crew-role">Rolle</label>
+                        <input type="text" id="crew-role" value="Crew" placeholder="Rolle">
+                    </div>
+                    <button type="button" id="btn-crew-add">+ Hinzufügen</button>
+                </div>
+                <ul id="crew-list"></ul>
+            </div>
+
+            <div class="card">
                 <h2>📝 Notizen</h2>
                 <div class="field">
                     <textarea id="fld-notes" placeholder="Freie Notizen zum Törn…" rows="4"></textarea>
@@ -186,32 +201,6 @@
         </div>
     </div><!-- /tab-toernuebersicht -->
 
-    <!-- ═══ Tab 2: Crew ════════════════════════════════════════════ -->
-    <div id="tab-crew" class="tab-panel tab-hidden">
-
-        <div class="tab-leer" id="tab-crew-leer">
-            <p>⬆ Bitte zuerst einen Törn auswählen oder anlegen.</p>
-        </div>
-
-        <div id="tab-crew-inhalt" hidden>
-            <div class="card">
-                <h2>👥 Crew</h2>
-                <div class="crew-add-row">
-                    <div class="field">
-                        <label for="crew-input">Name</label>
-                        <input type="text" id="crew-input" placeholder="Crew-Mitglied">
-                    </div>
-                    <div class="field field-role">
-                        <label for="crew-role">Rolle</label>
-                        <input type="text" id="crew-role" value="Crew" placeholder="Rolle">
-                    </div>
-                    <button type="button" id="btn-crew-add">+ Hinzufügen</button>
-                </div>
-                <ul id="crew-list"></ul>
-            </div>
-        </div>
-
-    </div><!-- /tab-crew -->
 
     <div id="tab-sicherheit" class="tab-panel tab-hidden">
         <div class="seite-header">
@@ -393,9 +382,10 @@
                     </button>
                 </div>
                 <div id="reffen-auswahl" hidden style="display:flex;gap:8px;margin-top:4px">
-                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen 1')" style="flex:1">⛵ Reff 1</button>
-                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen 2')" style="flex:1">⛵ Reff 2</button>
-                    <button type="button" class="btn-hafenmanover" onclick="reffenKlick('Reffen')" style="flex:1;opacity:0.7">⛵ Reffen</button>
+                    <button type="button" class="btn-hafenmanover" data-reff-typ="Reffen 1" onclick="reffenKlick('Reffen 1')" style="flex:1">⛵ Reff 1</button>
+                    <button type="button" class="btn-hafenmanover" data-reff-typ="Reffen 2" onclick="reffenKlick('Reffen 2')" style="flex:1">⛵ Reff 2</button>
+                    <button type="button" class="btn-hafenmanover" data-reff-typ="Reffen" onclick="reffenKlick('Reffen')" style="flex:1;opacity:0.7">⛵ Reffen</button>
+                    <button type="button" class="btn-hafenmanover" data-reff-typ="Ausreffen" onclick="reffenKlick('Ausreffen')" style="flex:1;opacity:0.7">⛵ Ausreffen</button>
                 </div>
 
                 <!-- Aktions-Zeile: Detail + Notiz -->
@@ -711,6 +701,7 @@
                     <option>Wende</option>
                     <option>Halse</option>
                     <option>Reffen</option>
+                    <option>Ausreffen</option>
                 </select>
             </div>
             <div class="field">
@@ -743,13 +734,13 @@
 </div>
 
 <script src="./leaflet.js"></script>
-<script src="storage.js?v=2.5.175"></script>
-<script src="config.js?v=2.5.175"></script>
-<script src="track.js?v=2.5.175"></script>
-<script src="karte.js?v=2.5.175"></script>
-<script src="statistik.js?v=2.5.175"></script>
-<script src="modals.js?v=2.5.175"></script>
-<script src="app.js?v=2.5.175"></script>
+<script src="storage.js?v=2.5.180-dev"></script>
+<script src="config.js?v=2.5.180-dev"></script>
+<script src="track.js?v=2.5.180-dev"></script>
+<script src="karte.js?v=2.5.180-dev"></script>
+<script src="statistik.js?v=2.5.180-dev"></script>
+<script src="modals.js?v=2.5.180-dev"></script>
+<script src="app.js?v=2.5.180-dev"></script>
 <script>
 if ("serviceWorker" in navigator) {
     /* APP_VERSION aus config.js als Cache-Buster – ändert sich bei jedem Version-Bump automatisch */

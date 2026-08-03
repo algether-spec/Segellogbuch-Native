@@ -9,6 +9,7 @@
 let _watchId     = null;   /* watchPosition-Handle ODER true bei aktivem Plugin (null = nicht aktiv) */
 let _usingPlugin = false;  /* true = BackgroundGeolocation-Plugin steuert _watchId statt navigator.geolocation */
 let _letzterPkt  = null;   /* letzter gespeicherter Track-Punkt         */
+let _letzteTrackPos = null; /* letzte bekannte Position aus BackgroundGeolocation (Fallback für gpsAbfragen) */
 let _wakeLock    = null;   /* WakeLock-Sentinel (null = nicht aktiv)    */
 let _speicherTimer = null; /* Debounce-Timer für toernSpeichern()       */
 let _sogSchwelle   = 0.1; /* SOG-Jitter-Filter-Schwelle in Knoten      */
@@ -227,6 +228,12 @@ function trackStarten() {
             },
             (location, error) => {
                 if (error) { _trackWatchError(error); return; }
+                _letzteTrackPos = {
+                    lat: parseFloat(location.latitude.toFixed(5)),
+                    lon: parseFloat(location.longitude.toFixed(5)),
+                    sog: location.speed != null ? parseFloat((location.speed * 1.94384).toFixed(1)) : null,
+                    ts:  Date.now()
+                };
                 _trackWatchCallback(_pluginLocationToPos(location));
             }
         );

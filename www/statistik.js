@@ -1369,41 +1369,112 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
         /* ══════════════════════════════════════════════════════ */
         pdf.addPage();  y = M + 15;
 
-        const letzterSF = [...events].reverse().find(e => e.type === 'Schiffsführerwechsel' && e.unterschrift);
-        const sfName    = letzterSF?.rudergaenger?.name || t.skipper || '—';
+        /* Alle nicht-stornierten Schiffsführerwechsel, chronologisch */
+        const sfEvs = events
+            .filter(e => e.type === 'Schiffsführerwechsel' && !e.storniert)
+            .sort((a, b) => evZeitIso(a).localeCompare(evZeitIso(b)));
+
+        /* Törnende für letzten Abschnitt */
+        const toernBisIso = (t.endDate && t.endTime)
+            ? `${t.endDate}T${t.endTime}:00`
+            : null;
+
+        /* Abschnittsliste: initialer Skipper + alle Schiffsführerwechsel */
+        const alleAbschnitte = [];
+        if (t.skipper) {
+            alleAbschnitte.push({
+                name:         t.skipper,
+                vonIso:       (t.startDate && t.startTime) ? `${t.startDate}T${t.startTime}:00` : null,
+                bisIso:       sfEvs.length > 0 ? evZeitIso(sfEvs[0]) : toernBisIso,
+                unterschrift: null
+            });
+        }
+        for (let i = 0; i < sfEvs.length; i++) {
+            const sf = sfEvs[i];
+            alleAbschnitte.push({
+                name:         sf.rudergaenger?.name || '—',
+                vonIso:       evZeitIso(sf),
+                bisIso:       i < sfEvs.length - 1 ? evZeitIso(sfEvs[i + 1]) : toernBisIso,
+                unterschrift: sf.unterschrift || null
+            });
+        }
 
         y = heading('Unterschriften', y);
         y += 8;
 
-        const sigLX = M;              /* linke Unterschrift x  */
-        const sigRX = M + CW / 2 + 5; /* rechte Unterschrift x */
-        let   sigY  = y;
+        if (alleAbschnitte.length === 0) {
+            /* Kein Schiffsführerwechsel – unverändertes Original-Layout */
+            const sigLX = M, sigRX = M + CW / 2 + 5;
+            let sigY = y;
+            pdf.setFont('helvetica', 'bold');   pdf.setFontSize(10); pdf.setTextColor(0, 0, 0);
+            pdf.text('Schiffsführer: ' + (t.skipper || '—'), sigLX, sigY);
+            pdf.text('Ort, Datum:', sigRX, sigY);
+            sigY += 4;
+            pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(80, 80, 80);
+            pdf.text('Abschluss: ' + fmt(t.endDate || t.startDate), sigLX, sigY);
+            sigY += 3;
+            pdf.setDrawColor(0, 0, 0); pdf.setLineWidth(0.4);
+            pdf.line(sigLX, sigY + 22, sigLX + 75, sigY + 22);
+            pdf.line(sigRX, sigY + 22, sigRX + 75, sigY + 22);
+            sigY += 25;
+            pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(120, 120, 120);
+            pdf.text('Unterschrift Schiffsführer', sigLX, sigY);
+            pdf.text('Ort & Datum', sigRX, sigY);
+        } else {
+            /* Tabelle: alle Schiffsführer-Abschnitte  (52+38+38+52 = 180mm) */
+            const sfCols = [
+                { label: 'Schiffsführer', w: 52 },
+                { label: 'Von',           w: 38 },
+                { label: 'Bis',           w: 38 },
+                { label: 'Unterschrift',  w: 52 }
+            ];
+            const _sfHeader = (yh) => {
+                pdf.setFillColor(26, 58, 92); pdf.rect(M, yh, CW, 7, 'F');
+                pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8); pdf.setTextColor(255, 255, 255);
+                let hx = M;
+                for (const col of sfCols) { pdf.text(col.label, hx + 1.5, yh + 5); hx += col.w; }
+                return yh + 7;
+            };
+            y = _sfHeader(y);
 
-        /* Labels */
-        pdf.setFont('helvetica', 'bold');   pdf.setFontSize(10);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('Schiffsführer: ' + sfName, sigLX, sigY);
-        pdf.text('Ort, Datum:',              sigRX, sigY);
-        sigY += 4;
-        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9);
-        pdf.setTextColor(80, 80, 80);
-        pdf.text('Abschluss: ' + fmt(t.endDate || t.startDate), sigLX, sigY);
-        sigY += 3;
+            for (let i = 0; i < alleAbschnitte.length; i++) {
+                const ab     = alleAbschnitte[i];
+                const vonTxt = ab.vonIso ? `${fmt(ab.vonIso)} ${fmtZ(ab.vonIso)}` : '—';
+                const bisTxt = ab.bisIso ? `${fmt(ab.bisIso)} ${fmtZ(ab.bisIso)}` : 'laufend';
+                const rowH   = 22;
 
-        /* Unterschrift-Bild oder Leerfeld */
-        if (letzterSF?.unterschrift) {
-            pdf.addImage(letzterSF.unterschrift, 'PNG', sigLX, sigY, 60, 20);
+                if (y + rowH > PH - M) { pdf.addPage(); y = M; y = _sfHeader(y); }
+
+                pdf.setFillColor(...(i % 2 === 0 ? [255, 255, 255] : [244, 247, 250]));
+                pdf.rect(M, y, CW, rowH, 'F');
+                pdf.setDrawColor(200, 200, 200); pdf.setLineWidth(0.2);
+                pdf.rect(M, y, CW, rowH, 'S');
+
+                pdf.setFont('helvetica', 'bold');   pdf.setFontSize(9); pdf.setTextColor(26, 58, 92);
+                pdf.text(ab.name, M + 2, y + 7);
+                pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(50, 50, 50);
+                pdf.text(vonTxt, M + 54, y + 7);
+                pdf.text(bisTxt, M + 92, y + 7);
+
+                if (ab.unterschrift) {
+                    pdf.addImage(ab.unterschrift, 'PNG', M + 130, y + 2, 46, 16);
+                } else {
+                    pdf.setDrawColor(150, 150, 150); pdf.setLineWidth(0.3);
+                    pdf.line(M + 130, y + 14, M + 178, y + 14);
+                    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7); pdf.setTextColor(150, 150, 150);
+                    pdf.text('Unterschrift', M + 130, y + 18);
+                }
+                y += rowH;
+            }
+
+            /* Ort/Datum-Feld */
+            y += 8;
+            if (y + 15 > PH - M) { pdf.addPage(); y = M; }
+            pdf.setDrawColor(0, 0, 0); pdf.setLineWidth(0.4);
+            pdf.line(M + CW / 2, y + 10, M + CW - 10, y + 10);
+            pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(120, 120, 120);
+            pdf.text('Ort & Datum', M + CW / 2, y + 14);
         }
-        pdf.setDrawColor(0, 0, 0);  pdf.setLineWidth(0.4);
-        pdf.line(sigLX, sigY + 22, sigLX + 75, sigY + 22);
-        pdf.line(sigRX, sigY + 22, sigRX + 75, sigY + 22);
-        sigY += 25;
-
-        /* Bezeichnungen */
-        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
-        pdf.setTextColor(120, 120, 120);
-        pdf.text('Unterschrift Schiffsführer', sigLX, sigY);
-        pdf.text('Ort & Datum',                sigRX, sigY);
 
         /* Fußzeile */
         pdf.setFont('helvetica', 'normal');

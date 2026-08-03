@@ -701,6 +701,18 @@ button:active { opacity: 0.75; }
     box-shadow: 0 3px 10px rgba(220,38,38,0.40);
 }
 
+/* Reffen aktiv: violett, klar unterscheidbar von Grün/Orange/Rot */
+.btn-schnell-card.btn-reffen-aktiv {
+    border-color: rgba(0,0,0,0.15);
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    box-shadow: 0 3px 10px rgba(124,58,237,0.35);
+}
+.btn-hafenmanover.btn-reffen-submenu-aktiv {
+    border: 2px solid #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124,58,237,0.25);
+}
+
 /* Antrieb-Hinweis: oranger Rand + Pulse wenn Fahrt aber kein Antrieb gesetzt */
 @keyframes antrieb-pulse {
     0%   { box-shadow: 0 0 0 0 rgba(232,132,26,0.6); }
@@ -2113,6 +2125,7 @@ li.event-item-storniert .event-pos {
     .btn-zustand { background: #1e293b; color: #94a3b8; }
     .btn-zustand-aktiv { background: linear-gradient(135deg, #14532d 0%, #16a34a 100%); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(22,163,74,0.3); }
     .btn-zustand[id="btn-zustand-motor"].btn-zustand-aktiv { background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(232,132,26,0.3); }
+    .btn-schnell-card.btn-reffen-aktiv { background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%); color: #fff; border-color: transparent; box-shadow: 0 3px 10px rgba(124,58,237,0.3); }
 
     .sidebar { background: #1e293b; }
     .sidebar-btn { color: #cbd5e1; }
@@ -2477,6 +2490,7 @@ body.sonnenmodus .weitere-label    { color: #475569; }
 body.sonnenmodus .btn-zustand { background: #132036; color: #93c5fd; border-color: #1e3a5f; font-size: 1rem; font-weight: 800; min-height: 54px; }
 body.sonnenmodus .btn-zustand-aktiv { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; }
 body.sonnenmodus .btn-zustand[id="btn-zustand-motor"].btn-zustand-aktiv { background: linear-gradient(135deg, #7c2d12, #ea580c); color: #fff; }
+body.sonnenmodus .btn-schnell-card.btn-reffen-aktiv { background: linear-gradient(135deg, #4c1d95, #7c3aed); color: #fff; }
 
 /* Stopzustand-Buttons (Anlegen / Ankern / An Boje) */
 body.sonnenmodus .btn-anlegen { background: #059669; }
@@ -2595,11 +2609,12 @@ body.sonnenmodus .toern-bar select { background: #132036; color: #e2e8f0; border
 .sidebar-acc-btn {
     width: 100%;
     text-align: left;
-    padding: 12px 16px 12px 28px;
+    padding: 15px 16px 15px 28px;
+    min-height: 48px;
     background: none;
     border: none;
-    color: #2d4a6a;
-    font-size: 0.9rem;
+    color: #1a3a5c;
+    font-size: 0.95rem;
     cursor: pointer;
     display: block;
 }
@@ -2609,9 +2624,9 @@ body.sonnenmodus .toern-bar select { background: #132036; color: #e2e8f0; border
 }
 
 .sidebar-acc-divider {
-    height: 0.5px;
+    height: 1px;
     background: #e2e8f0;
-    margin: 0 16px;
+    margin: 4px 0;
 }
 
 /* --- Rudergänger Shake ------------------------------------------ */

@@ -135,7 +135,12 @@ Der Fahrt-Zustand leitet sich ab aus:
 **Einschränkungen pro Zustand:**
 - Nur im Hafen: "Ablegen" erlaubt
 - Nur vor Anker: "Anker lichten" erlaubt
-- Nur während der Fahrt: "Anlegen", "Ankern", "Wende", "Halse", "Reffen" erlaubt
+- Nur während der Fahrt: "Anlegen", "Ankern", "Wende", "Halse", "Reffen", "Ausreffen" erlaubt
+
+"Ausreffen" ist das Gegenstück zu "Reffen"/"Reff 1"/"Reff 2": rein dokumentarischer
+Log-Eintrag ohne eigene Zustandsverfolgung. Es gibt (Stand jetzt) keine Dauer-
+Erfassung "Zeit gerefft gefahren" — das ist ein separates, noch nicht umgesetztes
+Feature (siehe ggf. spätere Ergänzung in statistik.js).
 
 ### Flow 3: Wetter-Daten
 ```

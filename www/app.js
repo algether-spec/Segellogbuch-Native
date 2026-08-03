@@ -250,13 +250,14 @@ const ERLAUBTE_ZUSTAENDE = {
     "Reffen":        ["fahrt"],
     "Reffen 1":      ["fahrt"],
     "Reffen 2":      ["fahrt"],
+    "Ausreffen":     ["fahrt"],
     /* Motor an, Segeln, Ruderwechsel: kein Eintrag → immer erlaubt (LOGIK.md: "immer sichtbar") */
 };
 
 
 /* Kategorie-Mapping */
 const KATEGORIE_MAP = {
-    "Wende": "Segeln", "Halse": "Segeln", "Reffen": "Segeln", "Reffen 1": "Segeln", "Reffen 2": "Segeln",
+    "Wende": "Segeln", "Halse": "Segeln", "Reffen": "Segeln", "Reffen 1": "Segeln", "Reffen 2": "Segeln", "Ausreffen": "Segeln",
     "Segel setzen": "Segeln", "Segel bergen": "Segeln",
     "Aufschießer": "Segeln", "Beidrehen": "Segeln", "Segeln": "Segeln",
     "Ablegen": "Motor", "Anlegen": "Motor", "Motor an": "Motor", "Motor aus": "Motor", "Motorsegeln": "Motor",
@@ -419,6 +420,33 @@ function _motorsegelnBeobachten() {
     const btnM = document.getElementById("btn-zustand-motor");
     if (btnS) obs.observe(btnS, { attributes: true, attributeFilter: ["class"] });
     if (btnM) obs.observe(btnM, { attributes: true, attributeFilter: ["class"] });
+}
+
+function reffZustandErmitteln() {
+    if (!aktuellerToern || !(aktuellerToern.events || []).length) return null;
+    const REFF_TYPEN = new Set(["Reffen 1", "Reffen 2", "Reffen", "Ausreffen"]);
+    const sorted = aktuellerToern.events.slice().sort((a, b) =>
+        evZeitIso(a) < evZeitIso(b) ? -1 : 1
+    );
+    for (let i = sorted.length - 1; i >= 0; i--) {
+        if (sorted[i].storniert) continue;
+        const typ = sorted[i].type;
+        if (STOPP_EREIGNISSE?.[typ]) return null; /* Ankern/Anlegen/An Boje = Reff-Zustand zurückgesetzt */
+        if (!REFF_TYPEN.has(typ)) continue;
+        if (typ === "Ausreffen") return null;
+        return { reffTyp: typ, event: sorted[i] };
+    }
+    return null;
+}
+
+function reffButtonsAktualisieren() {
+    const result = reffZustandErmitteln();
+    const btnReffen = document.getElementById("btn-reffen");
+    if (btnReffen) btnReffen.classList.toggle("btn-reffen-aktiv", !!result);
+
+    document.querySelectorAll("#reffen-auswahl button[data-reff-typ]").forEach(btn => {
+        btn.classList.toggle("btn-reffen-submenu-aktiv", result?.reffTyp === btn.dataset.reffTyp);
+    });
 }
 
 function reffenAuswaehlen() {
@@ -914,6 +942,7 @@ function zeigeLogs() {
     logbuchStatusAktualisieren();
     logVorschauAktualisieren();
     letzteTrackPunkteZeigen();
+    reffButtonsAktualisieren();
     requestAnimationFrame(() => { window.scrollTo(0, _scrollY); logScrollHoeheAnpassen(); });
 }
 
@@ -1416,7 +1445,7 @@ function eventErlaubt(typ, zustand) {
 
 
 function antriebKonsistenzPruefen(typ, antrieb) {
-    if (["Wende", "Halse", "Reffen", "Reffen 1", "Reffen 2"].includes(typ) && antrieb !== "segeln" && antrieb !== "motorsegeln") {
+    if (["Wende", "Halse", "Reffen", "Reffen 1", "Reffen 2", "Ausreffen"].includes(typ) && antrieb !== "segeln" && antrieb !== "motorsegeln") {
         return `⚠️ „${typ}" nur bei aktivem Segeln möglich`;
     }
     return null;
@@ -1647,7 +1676,7 @@ function hauptTabWechseln(tabId) {
 }
 
 function seitenWechseln(seiteId) {
-    const seitenPanels = ["tab-toern", "tab-toernuebersicht", "tab-crew", "tab-sicherheit", "tab-kontrolle", "tab-statistik", "tab-trackliste", "tab-einstellungen"];
+    const seitenPanels = ["tab-toern", "tab-toernuebersicht", "tab-sicherheit", "tab-kontrolle", "tab-statistik", "tab-trackliste", "tab-einstellungen"];
     const hauptBereich = document.getElementById("haupt-bereich");
 
     _aktiveSeitenId = seiteId || null;
@@ -1703,7 +1732,7 @@ function tabWechseln(tabId) { seitenWechseln(tabId); }
 
 function tabInhaltToggeln() {
     const aktiv = !!aktuellerToern;
-    ["crew", "logbuch", "log", "karte", "statistik", "trackliste"].forEach(t => {
+    ["logbuch", "log", "karte", "statistik", "trackliste"].forEach(t => {
         const leer   = document.getElementById("tab-" + t + "-leer");
         const inhalt = document.getElementById("tab-" + t + "-inhalt");
         if (leer)   leer.hidden   = aktiv;
@@ -2048,6 +2077,14 @@ function gpsAbfragen(ev) {
             zeigeLogs();
         },
         error => {
+            /* Fallback: letzte BackgroundGeolocation-Position, max. 90s alt */
+            if (_letzteTrackPos && (Date.now() - _letzteTrackPos.ts) < 90000) {
+                ev.pos = { lat: _letzteTrackPos.lat, lon: _letzteTrackPos.lon, sog: _letzteTrackPos.sog };
+                toernSpeichern(aktuellerToern);
+                zeigeLogs();
+                return;
+            }
+            /* pos bleibt null — ursprüngliches Verhalten */
             if (typeof statusSetzen === "function") {
                 const msg = error && error.code != null
                     ? (error.code === 1 ? "GPS-Berechtigung verweigert." :
@@ -2228,7 +2265,7 @@ btnToernLoeschen.hidden = true;
 statusMsg.hidden = true;
 
 /* Hauptbereich anzeigen, Sidebar-Panels verstecken */
-["tab-toern", "tab-crew", "tab-statistik", "tab-einstellungen"].forEach(id => {
+["tab-toern", "tab-statistik", "tab-einstellungen"].forEach(id => {
     const p = document.getElementById(id);
     if (p) p.classList.add("tab-hidden");
 });

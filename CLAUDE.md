@@ -281,6 +281,7 @@ Fixes #issue-id (if applicable)
 | Datei | Ort | Beispiel |
 |-------|-----|---------|
 | `www/config.js` | Zeile 5 | `const APP_VERSION = "2.5.152";` |
+| `www/version.json` | Zeile 1 | `{ "version": "2.5.152" }` |
 | `android/app/build.gradle` | `versionCode` & `versionName` | `versionCode 2515`, `versionName "2.5.152"` |
 | `package.json` | `version` | `"version": "2.5.152"` |
 | `CLAUDE.md` | Footer | `**Version:** 2.5.152` |
@@ -492,6 +493,6 @@ Test: adb install -r ✅
 
 ---
 
-**Zuletzt aktualisiert:** 30. Juni 2026  
+**Zuletzt aktualisiert:** 3. August 2026  
 **Für Claude/GitHub-Copilot optimiert**  
-**Version:** 2.5.151
+**Version:** 2.5.182
