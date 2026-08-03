@@ -1905,7 +1905,6 @@ li.event-item-storniert .event-pos {
 
 #druck-bereich         { display: none; }
 #abschluss-druck-bereich { display: none; }
-#logbuch-pdf-bereich   { display: none; padding: 15mm 15mm; box-sizing: border-box; background: #fff; }
 
 /* --- Druck-Styles ----------------------------------------------- */
 
@@ -1913,7 +1912,6 @@ li.event-item-storniert .event-pos {
     body > * { display: none !important; }
     #druck-bereich           { display: block !important; }
     #abschluss-druck-bereich { display: block !important; }
-    #logbuch-pdf-bereich     { display: block !important; }
 
     body {
         font-family: Georgia, serif;

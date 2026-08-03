@@ -357,29 +357,36 @@ function evTimestamp(ev) {
     return new Date(iso).getTime();
 }
 
-function motorUndSegelMinuten(events) {
+/* Event-Typ-Gruppen der Antriebs-Zustandsmaschine – auch von _antriebZustandVorTag()
+   (Tages-Filter-Carry-Over) wiederverwendet. */
+const ANTRIEB_MOTOR_TYPEN     = new Set(["Motor an"]);
+const ANTRIEB_SEGEL_TYPEN     = new Set(["Segeln"]);
+const ANTRIEB_MOTORSEGEL_TYPEN = new Set(["Motorsegeln"]);
+const ANTRIEB_STOPP_TYPEN     = new Set(["Motor aus", "Ankern", "An Boje", "Anlegen",
+                                          "Anker lichten", "Von Boje"]);
+
+function motorUndSegelMinuten(events, opts = {}) {
     /* Zustandsmaschine: jeder Zustandswechsel akkumuliert die Zeit im vorherigen Zustand.
-       Bisheriger Fehler: "Motor aus" und "Motorsegeln" wurden ignoriert → falsche Zeiten.
+       Ein am Ende noch offener Zustand (kein abschliessendes Stopp-Event) wird bis
+       opts.bisTs abgeschlossen statt verworfen – sonst geht bei jedem Törn, der ohne
+       "Motor aus"/"Anlegen" etc. endet, die gesamte Restzeit verloren.
 
        Motor:        "Motor an"
        Segel:        "Segeln"
        Motorsegeln:  "Motorsegeln"  (eigene Kategorie)
        Stopp:        "Motor aus", "Ankern", "An Boje", "Anlegen",
                      "Anker lichten", "Von Boje" */
-    const MOTOR      = new Set(["Motor an"]);
-    const SEGEL      = new Set(["Segeln"]);
-    const MOTORSEGL  = new Set(["Motorsegeln"]);
-    const STOPP      = new Set(["Motor aus", "Ankern", "An Boje", "Anlegen",
-                                 "Anker lichten", "Von Boje"]);
+    const { bisTs = Date.now(), anfangsZustand = null, anfangsTs = null } = opts;
 
     const sorted = events
-        .filter(e => MOTOR.has(e.type) || SEGEL.has(e.type) || MOTORSEGL.has(e.type) || STOPP.has(e.type))
+        .filter(e => ANTRIEB_MOTOR_TYPEN.has(e.type) || ANTRIEB_SEGEL_TYPEN.has(e.type) ||
+                     ANTRIEB_MOTORSEGEL_TYPEN.has(e.type) || ANTRIEB_STOPP_TYPEN.has(e.type))
         .filter(e => evTimestamp(e) !== null)
         .sort((a, b) => evTimestamp(a) - evTimestamp(b));
 
     let motorMin = 0, segelMin = 0, motsegelMin = 0;
-    let zustand   = null;   /* "motor" | "segel" | "motorsegel" | null */
-    let zustandTs = null;
+    let zustand   = anfangsZustand;   /* "motor" | "segel" | "motorsegel" | null */
+    let zustandTs = anfangsZustand ? anfangsTs : null;
 
     for (const ev of sorted) {
         const ts = evTimestamp(ev);
@@ -393,10 +400,18 @@ function motorUndSegelMinuten(events) {
         }
 
         /* Zustand wechseln */
-        if      (MOTOR.has(ev.type))    { zustand = "motor";     zustandTs = ts; }
-        else if (SEGEL.has(ev.type))    { zustand = "segel";     zustandTs = ts; }
-        else if (MOTORSEGL.has(ev.type)){ zustand = "motorsegel";zustandTs = ts; }
-        else if (STOPP.has(ev.type))    { zustand = null;        zustandTs = null; }
+        if      (ANTRIEB_MOTOR_TYPEN.has(ev.type))     { zustand = "motor";      zustandTs = ts; }
+        else if (ANTRIEB_SEGEL_TYPEN.has(ev.type))     { zustand = "segel";      zustandTs = ts; }
+        else if (ANTRIEB_MOTORSEGEL_TYPEN.has(ev.type)){ zustand = "motorsegel"; zustandTs = ts; }
+        else if (ANTRIEB_STOPP_TYPEN.has(ev.type))     { zustand = null;         zustandTs = null; }
+    }
+
+    /* Offenen Zustand am Ende abschliessen statt zu verwerfen */
+    if (zustand !== null && zustandTs !== null && bisTs > zustandTs) {
+        const dt = (bisTs - zustandTs) / 60000;
+        if      (zustand === "motor")     motorMin    += dt;
+        else if (zustand === "segel")     segelMin    += dt;
+        else if (zustand === "motorsegel") motsegelMin += dt;
     }
 
     return {
@@ -461,7 +476,7 @@ function nmProRudergaenger(toern) {
     return nmMap;
 }
 
-function toernStatistikBerechnen(toern) {
+function toernStatistikBerechnen(toern, opts = {}) {
     const events = toern.events || [];
 
     const proTyp = {};
@@ -469,7 +484,16 @@ function toernStatistikBerechnen(toern) {
         proTyp[ev.type] = (proTyp[ev.type] || 0) + 1;
     }
 
-    const { motorMin, segelMin, motsegelMin } = motorUndSegelMinuten(events);
+    /* bisTs: Zeitpunkt, bis zu dem ein am Ende offener Antriebs-Zustand abgeschlossen wird.
+       Default: Törn-Ende falls gesetzt, sonst "jetzt" (laufender Törn / Live-Statistik). */
+    const bisTs = opts.bisTs != null ? opts.bisTs
+        : (toern.endDate && toern.endTime) ? new Date(`${toern.endDate}T${toern.endTime}:00`).getTime()
+        : Date.now();
+    const { motorMin, segelMin, motsegelMin } = motorUndSegelMinuten(events, {
+        bisTs,
+        anfangsZustand: opts.anfangsZustand || null,
+        anfangsTs:      opts.anfangsTs || null
+    });
 
     const pts = (toern.track?.points || []).slice().sort((a, b) => a.zeit < b.zeit ? -1 : 1);
     const nmGesamt = pts.length > 1 && typeof trackDistanzNm === "function"
@@ -481,8 +505,8 @@ function toernStatistikBerechnen(toern) {
         unterSegel:   segelMin,
         mitMotor:     motorMin,
         mitMotorsegel: motsegelMin,
-        anker:        minutenAusPaaren(events, "Ankersetzen", "Anker auf"),
-        hafen:        minutenAusPaaren(events, "Ankunft",    "Abfahrt"),
+        anker:        minutenAusPaaren(events, "Ankern",  "Anker lichten"),
+        hafen:        minutenAusPaaren(events, "Anlegen", "Ablegen"),
         nmRuder:      nmProRudergaenger(toern),
         nmGesamt
     };
@@ -594,8 +618,8 @@ function tracklisteRendern(toern) {
 
 /* --- Törnabschluss ---------------------------------------------- */
 
-function toernAbschlussBerechnen(toern) {
-    const stat = toernStatistikBerechnen(toern);
+function toernAbschlussBerechnen(toern, opts = {}) {
+    const stat = toernStatistikBerechnen(toern, opts);
     return {
         tripName:  toern.tripName  || "(ohne Name)",
         zeitraum:  [toern.startDate, toern.endDate].filter(Boolean).join(" – ") || "—",
@@ -646,6 +670,24 @@ function statistikDatumFilterRendern(toern) {
 /* Statistik + Törnabschluss mit gefiltertem Ereignis- und Track-Set neu rendern.
    Track-Punkte müssen ebenfalls gefiltert werden, da nmProRudergaenger() und
    trackDistanzNm() auf toern.track.points arbeiten – nicht auf events. */
+/* Antriebs-Zustand, der von einem Vortag in datumFilter hinein andauert (z.B. Nachtfahrt
+   über Mitternacht) – damit die Tages-Filter-Ansicht die Zustandsmaschine nicht fälschlich
+   bei null neu startet. Rückgabe: "motor" | "segel" | "motorsegel" | null. */
+function _antriebZustandVorTag(toern, datumFilter) {
+    const grenzeTs = new Date(datumFilter + "T00:00:00").getTime();
+    const vorher = (toern.events || [])
+        .filter(e => ANTRIEB_MOTOR_TYPEN.has(e.type) || ANTRIEB_SEGEL_TYPEN.has(e.type) ||
+                     ANTRIEB_MOTORSEGEL_TYPEN.has(e.type) || ANTRIEB_STOPP_TYPEN.has(e.type))
+        .filter(e => evTimestamp(e) !== null && evTimestamp(e) < grenzeTs)
+        .sort((a, b) => evTimestamp(a) - evTimestamp(b));
+    if (!vorher.length) return null;
+    const letztes = vorher[vorher.length - 1];
+    if (ANTRIEB_STOPP_TYPEN.has(letztes.type)) return null;
+    if (ANTRIEB_MOTOR_TYPEN.has(letztes.type)) return "motor";
+    if (ANTRIEB_SEGEL_TYPEN.has(letztes.type)) return "segel";
+    return "motorsegel";
+}
+
 function _statistikMitFilter(toern, datumFilter) {
     if (datumFilter === "alle") {
         toernStatistikRendern(toernStatistikBerechnen(toern));
@@ -662,8 +704,13 @@ function _statistikMitFilter(toern, datumFilter) {
             )
         })
     });
-    toernStatistikRendern(toernStatistikBerechnen(gefilterteToern));
-    toernAbschlussRendern(toernAbschlussBerechnen(gefilterteToern));
+    const opts = {
+        bisTs:          new Date(datumFilter + "T23:59:59").getTime(),
+        anfangsZustand: _antriebZustandVorTag(toern, datumFilter),
+        anfangsTs:      new Date(datumFilter + "T00:00:00").getTime()
+    };
+    toernStatistikRendern(toernStatistikBerechnen(gefilterteToern, opts));
+    toernAbschlussRendern(toernAbschlussBerechnen(gefilterteToern, opts));
 }
 
 /* Hilfsfunktion: rendert die Ereigniszeilen (ohne Datumsfilter – wird jetzt von oben gefiltert) */
@@ -830,7 +877,7 @@ function abschlussdrucken() {
 
     (async () => {
         const filename = (`segellogbuch_tournabschluss_${(ab.tripName || 'toern').replace(/[^a-z0-9\-\_ ]/gi, '')}_${new Date().toISOString().slice(0,10)}.pdf`).replace(/\s+/g, '_');
-        const bereich = document.getElementById("logbuch-pdf-bereich") || abschlussDruckBereich;
+        const bereich = abschlussDruckBereich;
         /* Temporär sichtbar off-screen für Rendering */
         bereich.style.position = "fixed";
         bereich.style.left = "-9999px";
@@ -1268,7 +1315,12 @@ async function _logbuchPdfGenerieren(toern, journalEvents, filename, btnPdf, btn
                 const tagesEvs = tageMap[datum];
                 const tagsPts  = allePts.filter(p => p.zeit && p.zeit.slice(0, 10) === datum)
                                         .sort((a, b) => a.zeit < b.zeit ? -1 : 1);
-                const tagStat  = toernStatistikBerechnen({ events: tagesEvs, track: { points: tagsPts } });
+                const tagOpts  = {
+                    bisTs:          new Date(datum + "T23:59:59").getTime(),
+                    anfangsZustand: _antriebZustandVorTag(t, datum),
+                    anfangsTs:      new Date(datum + "T00:00:00").getTime()
+                };
+                const tagStat  = toernStatistikBerechnen({ events: tagesEvs, track: { points: tagsPts } }, tagOpts);
                 const tagNm    = tagsPts.length > 1 && typeof trackDistanzNm === 'function'
                     ? trackDistanzNm(tagsPts) : null;
 
